@@ -1,15 +1,22 @@
+/* eslint-disable import/order */
 import ReactDOM from 'react-dom/client';
 
 //
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 // ----------------------------------------------------------------------
+const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-root.render(<App />);
+root.render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+);
 
 // If you want to enable client cache, register instead.
 serviceWorker.unregister();

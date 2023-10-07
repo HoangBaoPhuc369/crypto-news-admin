@@ -75,7 +75,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function UserPage() {
+export default function Post() {
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -153,20 +153,20 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> Post | Minimal UI </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Post
           </Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={() => navigate('/dashboard/user/new')}
+            onClick={() => navigate('/dashboard/post/new')}
           >
-            New User
+            New Post
           </Button>
         </Stack>
 
