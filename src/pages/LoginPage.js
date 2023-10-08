@@ -1,3 +1,5 @@
+/* eslint-disable import/order */
+/* eslint-disable react/self-closing-comp */
 import { Helmet } from 'react-helmet-async';
 // @mui
 import { styled } from '@mui/material/styles';
@@ -9,6 +11,12 @@ import Logo from '../components/logo';
 import Iconify from '../components/iconify';
 // sections
 import { LoginForm } from '../sections/auth/login';
+import { useMutation } from 'react-query';
+import AuthApiService from '../services/api-services/auth.service';
+import { getUser } from '../store/slices/auth';
+import { useDispatch } from 'react-redux';
+import _ from 'lodash';
+import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +50,19 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function LoginPage() {
   const mdUp = useResponsive('up', 'md');
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const mLogin = useMutation((data) => AuthApiService.loginAdmin(data), {
+    onError: (err) => {
+      console.log(err);
+    },
+    onSuccess: (data) => {
+      dispatch(getUser(_.get(data, 'data')));
+      navigate('/dashboard', { replace: true });
+    },
+  });
 
   return (
     <>
@@ -70,35 +91,12 @@ export default function LoginPage() {
         <Container maxWidth="sm">
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Sign in to Admin DashBoard
             </Typography>
 
-            <Typography variant="body2" sx={{ mb: 5 }}>
-              Don’t have an account? {''}
-              <Link variant="subtitle2">Get started</Link>
-            </Typography>
+            <Typography variant="body2" sx={{ mb: 5 }}></Typography>
 
-            <Stack direction="row" spacing={2}>
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:twitter-fill" color="#1C9CEA" width={22} height={22} />
-              </Button>
-            </Stack>
-
-            <Divider sx={{ my: 3 }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                OR
-              </Typography>
-            </Divider>
-
-            <LoginForm />
+            <LoginForm onSubmit={(data) => mLogin.mutate(data)} loading={Boolean(_.get(mLogin, 'isLoading'))} />
           </StyledContent>
         </Container>
       </StyledRoot>

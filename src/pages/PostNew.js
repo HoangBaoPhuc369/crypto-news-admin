@@ -24,7 +24,7 @@ import {
   Grid,
   Box,
 } from '@mui/material';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import TextFiedCustom from '../components/form/TextFiedCustom';
 import SelectField from '../components/form/SelectField';
@@ -33,6 +33,7 @@ import { useMutation } from 'react-query';
 import _ from 'lodash';
 import ImageApiService from '../services/api-services/images.service';
 import Editor from '../components/editor';
+import DropImageFile from '../components/form/DropImageFile';
 
 export default function PostNew() {
   const editorEnRef = useRef(null);
@@ -61,6 +62,10 @@ export default function PostNew() {
     },
   });
 
+  useEffect(() => {
+    console.log(hookForm.watch());
+  }, [hookForm.watch()]);
+
   return (
     <>
       <Helmet>
@@ -74,21 +79,10 @@ export default function PostNew() {
           </Typography>
         </Stack>
 
-        <Grid item xs={12} mb={2}>
-          <Typography variant="h6" sx={{ fontWeight: '600' }}>
-            Details:
-          </Typography>
-        </Grid>
-
-        <Grid container spacing={2}>
-          <Grid item xs={6} mb={2}>
+        <Grid container spacing={2} mb={2}>
+          <Grid item xs={12}>
             <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
               English
-            </Typography>
-          </Grid>
-          <Grid item xs={6} mb={2}>
-            <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
-              Japan
             </Typography>
           </Grid>
         </Grid>
@@ -96,6 +90,9 @@ export default function PostNew() {
           <Grid item xs={12}>
             <Paper elevation={3} sx={{ display: 'flex', gap: '20px', padding: '24px', marginBottom: '20px' }}>
               <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2">Details</Typography>
+                </Grid>
                 <Grid item xs={12}>
                   <TextFiedCustom hookForm={hookForm} label={'Post title'} name="body[0].title" />
                 </Grid>
@@ -113,15 +110,29 @@ export default function PostNew() {
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2">Content</Typography>
+                  <Typography variant="subtitle2" mb={2}>
+                    Content
+                  </Typography>
+
+                  <Box>
+                    <Editor hanldeEditor={(data) => hookForm.setValue('body[0].body', data)} />
+                  </Box>
                 </Grid>
               </Grid>
             </Paper>
           </Grid>
 
           <Grid item xs={12}>
+            <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+              Japan
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
             <Paper elevation={3} sx={{ display: 'flex', gap: '20px', padding: '24px', marginBottom: '20px' }}>
               <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2">Details</Typography>
+                </Grid>
                 <Grid item xs={12}>
                   <TextFiedCustom hookForm={hookForm} label={'Post title'} name="body[1].title" />
                 </Grid>
@@ -144,8 +155,38 @@ export default function PostNew() {
                   </Typography>
 
                   <Box>
-                    <Editor />
+                    <Editor hanldeEditor={(data) => hookForm.setValue('body[1].body', data)} />
                   </Box>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            <Grid container spacing={2} mb={2}>
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" sx={{ fontWeight: '600', mb: '20px' }}>
+                  Image
+                </Typography>
+
+                <DropImageFile />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2} mb={2}>
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+                  Properties
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Paper elevation={3} sx={{ display: 'flex', gap: '20px', padding: '24px', marginBottom: '20px' }}>
+              <Grid container spacing={3}>
+                <Grid item xs={6}>
+                  <SelectField hookForm={hookForm} label={'Category'} name="body[0].title" />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <SelectField hookForm={hookForm} label={'Tag'} name="body[0].title" />
                 </Grid>
               </Grid>
             </Paper>

@@ -1,28 +1,46 @@
+/* eslint-disable import/order */
+/* eslint-disable import/no-unresolved */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
 import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { useForm } from 'react-hook-form';
 // components
 import Iconify from '../../../components/iconify';
+import TextFiedCustom from '../../../components/form/TextFiedCustom';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function LoginForm() {
-  const navigate = useNavigate();
-
+export default function LoginForm({ onSubmit, loading }) {
+  
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleClick = () => {
-    navigate('/dashboard', { replace: true });
+  const hookForm = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const checkObjectProperties = (obj) => _.every(_.values(obj), (value) => !_.isEmpty(value));
+
+  const handleClick = (data) => {
+    if (checkObjectProperties(data)) {
+      onSubmit(data);
+    } else {
+      console.log('Có ít nhất một thuộc tính không có giá trị');
+    }
   };
 
   return (
     <>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
+        <TextFiedCustom name="email" label="Email address" hookForm={hookForm} />
 
-        <TextField
+        <TextFiedCustom
+          hookForm={hookForm}
           name="password"
           label="Password"
           type={showPassword ? 'text' : 'password'}
@@ -45,7 +63,14 @@ export default function LoginForm() {
         </Link>
       </Stack>
 
-      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
+      <LoadingButton
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        loading={loading}
+        onClick={() => hookForm.handleSubmit(handleClick)()}
+      >
         Login
       </LoadingButton>
     </>

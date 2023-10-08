@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-danger */
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable no-unused-vars */
@@ -16,7 +17,7 @@ import parse from 'html-react-parser';
 
 Quill.register('modules/imageResize', ImageResize);
 
-const Editor = () => {
+const Editor = ({ hanldeEditor }) => {
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} },
   });
@@ -26,12 +27,12 @@ const Editor = () => {
     Quill.register('modules/blotFormatter', BlotFormatter);
   }
 
-  const [content, setContent] = useState('');
+  // const [content, setContent] = useState('');
 
   useEffect(() => {
     if (quill) {
       quill.on('text-change', (delta, oldContents) => {
-        setContent(quill.root.innerHTML);
+        hanldeEditor(quill.root.innerHTML);
       });
     }
   }, [quill, Quill]);

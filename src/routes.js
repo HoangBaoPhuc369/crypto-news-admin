@@ -1,3 +1,5 @@
+/* eslint-disable no-extra-boolean-cast */
+/* eslint-disable import/order */
 import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
@@ -12,14 +14,19 @@ import DashboardAppPage from './pages/DashboardAppPage';
 import UserNew from './pages/UserNew';
 import Post from './pages/Post';
 import PostNew from './pages/PostNew';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const { user } = useSelector((state) => state.auth);
+
   const routes = useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: Boolean(_.get(user, 'token')) ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
@@ -34,6 +41,7 @@ export default function Router() {
     {
       path: 'login',
       element: <LoginPage />,
+      index: true,
     },
     {
       element: <SimpleLayout />,
