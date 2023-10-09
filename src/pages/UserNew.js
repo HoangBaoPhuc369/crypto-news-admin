@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import { Helmet } from 'react-helmet-async';
 // @mui
 import {
@@ -23,20 +24,40 @@ import {
 import { useForm } from 'react-hook-form';
 import TextFiedCustom from '../components/form/TextFiedCustom';
 import SelectField from '../components/form/SelectField';
+import { useMutation } from 'react-query';
+import AuthApiService from '../services/api-services/auth.service';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import _ from 'lodash';
 
 export default function UserNew() {
+  const navigate = useNavigate();
+  const {user} = useSelector(state => state.auth)
+
   const hookForm = useForm({
     defaultValues: {
       email: '',
       password: '',
       name: '',
-      roles: '',
+      roles: ["system"],
       active: true,
     },
   });
 
+  const mCreateUser = useMutation((data) => AuthApiService.createUser(data), {
+    onError: (err) => {
+       console.log(err)
+    },
+    onSuccess: (data) => {
+      navigate('/dashboard/user')
+    }
+});
+
   const handleCreateUser = (data) => {
-    console.log(data);
+    // console.log(user);
+    const params = _.omit(data, 'activeHideObj');
+    console.log(_.get(user, 'token', ''));
+    mCreateUser.mutate({data:params, token: _.get(user, 'token', '')});
   };
 
   return (
@@ -64,7 +85,7 @@ export default function UserNew() {
               <TextFiedCustom hookForm={hookForm} name="email" label={'Email'} />
             </Grid>
             <Grid item xs={6}>
-              <TextFiedCustom hookForm={hookForm} name="role" label={'Role'} />
+              {/* <TextFiedCustom hookForm={hookForm} name="role" label={'Role'} /> */}
             </Grid>
             <Grid item xs={6}>
               <SelectField

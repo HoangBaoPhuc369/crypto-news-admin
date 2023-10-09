@@ -7,5 +7,15 @@ class AuthApiService {
   loginAdmin(data) {
     return axiosServices.post(`${this.baseApi}auth/login`, data);
   }
+
+  createUser({data, token}) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    };
+    console.log(config);
+    return axiosServices.post(`${this.baseApi}users`, data, config);
+  }
 }
 export default new AuthApiService();
