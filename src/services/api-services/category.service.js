@@ -2,30 +2,17 @@
 import _ from 'lodash';
 import axiosServices from '../../components/utils/axios';
 
-class AuthApiService {
+class CategoryApiService {
   baseApi = 'https://cryptonew-v8jk.onrender.com/';
 
-  loginAdmin(data) {
-    return axiosServices.post(`${this.baseApi}auth/login`, data);
-  }
-
-  createUser({ data, token }) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    return axiosServices.post(`${this.baseApi}users`, data, config);
-  }
-
-  getListUser({ data, token }) {
+  getListCategory({ data, token }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
     return axiosServices.get(
-      `${this.baseApi}users`,
+      `${this.baseApi}categories`,
       {
         params: {
           page: _.get(data, 'index'),
@@ -36,31 +23,31 @@ class AuthApiService {
     );
   }
 
-  deleteUser({ data, token }) {
+  createCategory({ data, token }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.delete(`${this.baseApi}users/${data}`, config);
+    return axiosServices.post(`${this.baseApi}categories`, data, config);
   }
 
-  updateUser({ data, token, userId }) {
+  getCategory({ data, token }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.put(`${this.baseApi}users/${userId}`, data, config);
+    return axiosServices.get(`${this.baseApi}categories/${data}`, config);
   }
 
-  getUser({ data, token }) {
+  updateCategory({ data, token, paramId }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.get(`${this.baseApi}users/${data}`, config);
+    return axiosServices.put(`${this.baseApi}categories/${paramId}`, data, config);
   }
 }
-export default new AuthApiService();
+export default new CategoryApiService();

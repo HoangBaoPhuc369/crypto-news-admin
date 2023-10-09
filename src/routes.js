@@ -14,9 +14,10 @@ import DashboardAppPage from './pages/DashboardAppPage';
 import UserNew from './pages/UserNew';
 import Post from './pages/Post';
 import PostNew from './pages/PostNew';
-import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import _ from 'lodash';
+import Category from './pages/Category';
+import CategoryNew from './pages/CategoryNew';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +35,8 @@ export default function Router() {
         { path: 'user/new', element: <UserNew /> },
         { path: 'post', element: <Post /> },
         { path: 'post/new', element: <PostNew /> },
+        { path: 'category', element: <Category /> },
+        { path: 'category/new', element: <CategoryNew /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
       ],

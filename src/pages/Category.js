@@ -5,25 +5,7 @@ import _, { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 // @mui
-import {
-  Card,
-  Table,
-  Stack,
-  Paper,
-  Avatar,
-  Button,
-  Popover,
-  Checkbox,
-  TableRow,
-  MenuItem,
-  TableBody,
-  TableCell,
-  Container,
-  Typography,
-  IconButton,
-  TableContainer,
-  TablePagination,
-} from '@mui/material';
+import { Card, Stack, Button, Popover, MenuItem, Container, Typography, IconButton } from '@mui/material';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -32,12 +14,12 @@ import Iconify from '../components/iconify';
 import { useNavigate } from 'react-router-dom';
 import TableDynamic from '../components/form/TableDynamic';
 import { useMutation, useQuery } from 'react-query';
-import AuthApiService from '../services/api-services/auth.service';
+import CategoryApiService from '../services/api-services/category.service';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
-import UserDialog, { baseViewUserDialogRef } from '../components/dialog/UserDialog';
+import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/CategoryDialog';
 
-export default function UserPage() {
+export default function Category() {
   const [open, setOpen] = useState(null);
   const [row, setRow] = useState(null);
   const { user } = useSelector((state) => state.auth);
@@ -51,10 +33,10 @@ export default function UserPage() {
 
   const { watch, setValue } = hookForm;
 
-  const qgetListUser = useQuery(
-    ['qgetListUser', watch('index'), watch('size'), watch('rows')],
+  const qgetListCategory = useQuery(
+    ['qgetListCategory', watch('index'), watch('size'), watch('rows')],
     () =>
-      AuthApiService.getListUser({
+      CategoryApiService.getListCategory({
         data: {
           index: watch('index'),
           size: watch('size'),
@@ -64,7 +46,7 @@ export default function UserPage() {
     {
       onSuccess: (data) => {
         console.log(data);
-        setValue('rows', _.get(data, 'data.data'));
+        setValue('rows', _.get(data, 'data', []));
       },
       onError: (err) => {},
       keepPreviousData: true,
@@ -72,43 +54,23 @@ export default function UserPage() {
     }
   );
 
-  const mDeleteUser = useMutation((data) => AuthApiService.deleteUser({ data, token: _.get(user, 'token', '') }), {
+  const mDeleteUser = useMutation((data) => CategoryApiService.deleteUser({ data, token: _.get(user, 'token', '') }), {
     onError: (err) => {
       console.log(err);
     },
     onSuccess: (data) => {
       console.log(data);
       handleCloseMenu();
-      qgetListUser.refetch();
+      qgetListCategory.refetch();
     },
   });
 
   const columns = [
     {
-      id: 'email',
-      label: 'Email',
-      width: 200,
-      headerCellSX: { bgcolor: '#EAEEF2' },
-    },
-    {
       id: 'name',
       label: 'Name',
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
-    },
-    {
-      id: 'active',
-      label: 'Status',
-      width: 200,
-      headerCellSX: { bgcolor: '#EAEEF2' },
-      renderCell: (params) => {
-        const label = Boolean(_.get(params, 'active', false)) ? 'active' : 'banned';
-        return (
-          <Label color={(_.get(params, 'active', false) === false && 'error') || 'success'}>
-            {sentenceCase(label)}
-          </Label>
-        );
-      },
     },
     {
       id: 'action',
@@ -158,23 +120,23 @@ export default function UserPage() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Category
           </Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={() => navigate('/dashboard/user/new')}
+            onClick={() => navigate('/dashboard/category/new')}
           >
-            New User
+            New Category
           </Button>
         </Stack>
 
         <Card>
           <TableDynamic
             columns={columns}
-            rows={watch('rows')}
-            totalRow={_.get(qgetListUser, 'data.data.total', 5)}
-            loading={Boolean(_.get(qgetListUser, 'isLoading'))}
+            rows={watch('rows') || []}
+            totalRow={_.get(qgetListCategory, 'data.data.total', 5)}
+            loading={Boolean(_.get(qgetListCategory, 'isLoading'))}
             rowsPerPage={watch('size')}
             skipCount={(watch('index') - 1) * watch('size') || 0}
             onChangePage={handleChangePage}
@@ -202,12 +164,13 @@ export default function UserPage() {
         }}
       >
         <MenuItem
-          onClick={() =>
-            baseViewUserDialogRef.current?.open({
-              refetch: () => qgetListUser.refetch(),
-              userId: _.get(row, '_id', ''),
-            })
-          }
+          onClick={() => {
+            handleCloseMenu();
+            baseViewCategoryDialogRef.current?.open({
+              refetch: () => qgetListCategory.refetch(),
+              id: _.get(row, '_id', ''),
+            });
+          }}
         >
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
           Edit
@@ -219,7 +182,7 @@ export default function UserPage() {
         </MenuItem>
       </Popover>
 
-      <UserDialog />
+      <CategoryDialog />
     </>
   );
 }
