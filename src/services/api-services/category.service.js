@@ -23,6 +23,17 @@ class CategoryApiService {
     );
   }
 
+  getAllListCategory(token) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return axiosServices.get(
+      `${this.baseApi}categories`, config
+    );
+  }
+
   createCategory({ data, token }) {
     const config = {
       headers: {
@@ -49,5 +60,15 @@ class CategoryApiService {
     };
     return axiosServices.put(`${this.baseApi}categories/${paramId}`, data, config);
   }
+
+  deleteCategory({ data, token }) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return axiosServices.delete(`${this.baseApi}categories/${data}`, config);
+  }
+
 }
 export default new CategoryApiService();

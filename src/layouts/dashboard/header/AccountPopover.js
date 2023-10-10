@@ -57,7 +57,7 @@ export default function AccountPopover() {
         <Avatar src={account.photoURL} alt="photoURL" />
       </IconButton>
 
-      <Popover
+      {/* <Popover
         open={Boolean(open)}
         anchorEl={open}
         onClose={handleClose}
@@ -100,7 +100,7 @@ export default function AccountPopover() {
         <MenuItem onClick={handleClose} sx={{ m: 1 }}>
           Logout
         </MenuItem>
-      </Popover>
+      </Popover> */}
     </>
   );
 }

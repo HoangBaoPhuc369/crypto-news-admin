@@ -5,7 +5,7 @@ import _, { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 // @mui
-import { Card, Stack, Button, Popover, MenuItem, Container, Typography, IconButton } from '@mui/material';
+import { Card, Stack, Button, Popover, MenuItem, Container, Typography, IconButton, Avatar } from '@mui/material';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -14,12 +14,12 @@ import Iconify from '../components/iconify';
 import { useNavigate } from 'react-router-dom';
 import TableDynamic from '../components/form/TableDynamic';
 import { useMutation, useQuery } from 'react-query';
-import CategoryApiService from '../services/api-services/category.service';
+import SocialApiService from '../services/api-services/social.service';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/CategoryDialog';
 
-export default function Category() {
+export default function Social() {
   const [open, setOpen] = useState(null);
   const [row, setRow] = useState(null);
   const { user } = useSelector((state) => state.auth);
@@ -33,10 +33,10 @@ export default function Category() {
 
   const { watch, setValue } = hookForm;
 
-  const qgetListCategory = useQuery(
-    ['qgetListCategory', watch('index'), watch('size'), watch('rows')],
+  const qgetListSocial = useQuery(
+    ['qgetListSocial', watch('index'), watch('size'), watch('rows')],
     () =>
-      CategoryApiService.getListCategory({
+      SocialApiService.getListSocial({
         data: {
           index: watch('index'),
           size: watch('size'),
@@ -54,14 +54,14 @@ export default function Category() {
     }
   );
 
-  const mDeleteCategory = useMutation((data) => CategoryApiService.deleteCategory({ data, token: _.get(user, 'token', '') }), {
+  const mDeleteSocial = useMutation((data) => SocialApiService.deleteSocial({ data, token: _.get(user, 'token', '') }), {
     onError: (err) => {
       console.log(err);
     },
     onSuccess: (data) => {
       console.log(data);
       handleCloseMenu();
-      qgetListCategory.refetch();
+      qgetListSocial.refetch();
     },
   });
 
@@ -69,6 +69,21 @@ export default function Category() {
     {
       id: 'name',
       label: 'Name',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+    },
+    {
+      id: 'iconUrl',
+      label: 'icon',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => (
+        <Avatar alt={_.get(params, 'name', '')} src={_.get(params, 'iconUrl', '/assets/images/images/placeholder.png')} />
+      ),
+    },
+    {
+      id: 'link',
+      label: 'Link',
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
     },
@@ -114,20 +129,20 @@ export default function Category() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> Social | Minimal UI </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Category
+          Social
           </Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={() => navigate('/dashboard/category/new')}
           >
-            New Category
+            New Social
           </Button>
         </Stack>
 
@@ -135,8 +150,8 @@ export default function Category() {
           <TableDynamic
             columns={columns}
             rows={watch('rows') || []}
-            totalRow={_.get(qgetListCategory, 'data.data.total', 5)}
-            loading={Boolean(_.get(qgetListCategory, 'isLoading'))}
+            totalRow={_.get(qgetListSocial, 'data.data.total', 5)}
+            loading={Boolean(_.get(qgetListSocial, 'isLoading'))}
             rowsPerPage={watch('size')}
             skipCount={(watch('index') - 1) * watch('size') || 0}
             onChangePage={handleChangePage}
@@ -167,7 +182,7 @@ export default function Category() {
           onClick={() => {
             handleCloseMenu();
             baseViewCategoryDialogRef.current?.open({
-              refetch: () => qgetListCategory.refetch(),
+              refetch: () => qgetListSocial.refetch(),
               id: _.get(row, '_id', ''),
             });
           }}
@@ -176,7 +191,7 @@ export default function Category() {
           Edit
         </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }} onClick={() => mDeleteCategory.mutate(_.get(row, '_id', ''))}>
+        <MenuItem sx={{ color: 'error.main' }} onClick={() => mDeleteSocial.mutate(_.get(row, '_id', ''))}>
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Delete
         </MenuItem>

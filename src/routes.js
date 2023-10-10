@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import _ from 'lodash';
 import Category from './pages/Category';
 import CategoryNew from './pages/CategoryNew';
+import Social from './pages/Social';
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +38,8 @@ export default function Router() {
         { path: 'post/new', element: <PostNew /> },
         { path: 'category', element: <Category /> },
         { path: 'category/new', element: <CategoryNew /> },
+        { path: 'social', element: <Social /> },
+        { path: 'social/new', element: <CategoryNew /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
       ],
