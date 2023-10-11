@@ -125,7 +125,7 @@ export default function PostNew() {
         reader.readAsDataURL(img);
         reader.onload = (readerEvent) => {
           setIsConverting(false);
-          setFile(e.target.files[0]);
+          setFile(_.get(e, 'target.files[0]', null));
           hookForm.setValue('imageUrl', readerEvent.target.result);
         };
       }
@@ -163,11 +163,12 @@ export default function PostNew() {
     // const convertImg = dataURItoBlob(_.get(data, 'imageUrl', ''));
 
     // const path = `/post/images`;
+    // console.log(file);
     const formData = new FormData();
     formData.append("uploaded_file", file);
       
     // formData.append("uploaded_file", convertImg);
-
+    // console.log(formData);
     mUploadImage.mutate({formData, token: _.get(user, 'token', '')})
   };
 
