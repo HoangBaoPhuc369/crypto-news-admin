@@ -23,14 +23,15 @@ class PostApiService {
     return axiosServices.post(`${this.baseApi}posts`, data, config);
   }
 
-  uploadImage({formData, token}) {
+  uploadImage(data) {
+    console.log(data);
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${_.get(data,'token', '')}`,
         'Content-Type': 'multipart/form-data',
       },
     };
-    return axiosServices.post(`${this.baseApi}uploads/stats`, formData, config);
+    return axiosServices.post(`${this.baseApi}uploads/stats`, _.get(data, 'formData', null), config);
   }
 
 

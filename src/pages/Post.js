@@ -129,20 +129,20 @@ export default function Post() {
   return (
     <>
       <Helmet>
-        <title> Social | Minimal UI </title>
+        <title> Post | Minimal UI </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Social
+          Post
           </Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={() => navigate('/dashboard/post/new')}
           >
-            New Social
+            New Post
           </Button>
         </Stack>
 
