@@ -37,7 +37,7 @@ import ImageApiService from '../services/api-services/images.service';
 import Editor from '../components/editor';
 import DropImageFile from '../components/form/DropImageFile';
 import { styled } from '@mui/material/styles';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+// import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { LoadingButton } from '@mui/lab';
 import CategoryApiService from '../services/api-services/category.service';
 import { useSelector } from 'react-redux';
@@ -277,7 +277,7 @@ export default function PostNew() {
                   loading={isConverting}
                   component="label"
                   variant="contained"
-                  startIcon={<CloudUploadIcon />}
+                  // startIcon={<CloudUploadIcon />}
                 >
                   Upload file
                   <VisuallyHiddenInput type="file" accept="image/*" onChange={handleImages} />
