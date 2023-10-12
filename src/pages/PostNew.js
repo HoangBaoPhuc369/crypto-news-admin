@@ -45,6 +45,7 @@ import PostApiService from '../services/api-services/post.service';
 import { useNavigate } from 'react-router-dom';
 import dataURItoBlob from '../helpers/dataURItoBlob';
 // import { img_empty_data } from 'assets/images/img_empty_data.svg';
+import SelectFieldMultiple from '../components/form/SelectFieldMultiple';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -88,9 +89,10 @@ export default function PostNew() {
           body: '',
         },
       ],
-      tags: ['Crypto', 'BlockChain', 'News'],
+      tags: [],
       categoryId: '',
       imageUrl: '',
+      imgFile: null,
       hidden: false,
       status: 99, // 1 -> tạo; 99 -> xuất bản
     },
@@ -125,7 +127,7 @@ export default function PostNew() {
         reader.readAsDataURL(img);
         reader.onload = (readerEvent) => {
           setIsConverting(false);
-          setFile(_.get(e, 'target.files[0]', null));
+          hookForm.setValue('imgFile', _.get(e, 'target.files[0]', null));
           hookForm.setValue('imageUrl', readerEvent.target.result);
         };
       }
@@ -139,17 +141,21 @@ export default function PostNew() {
     },
     onSuccess: (data) => {
       console.log(data);
+      hookForm.reset();
       navigate('/dashboard/post');
     },
   });
 
-  const mUploadImage = useMutation((data) => PostApiService.uploadImage(data), {
+  const mUploadImage = useMutation((data) => ImageApiService.uploadImage(data), {
     onError: (err) => {
       console.log(err);
     },
     onSuccess: (data) => {
-      console.log(data);
-      const finalObj = _.set(_.omit(hookForm.watch(), ['categoryIdHideObj', 'tagsHideObj']), 'imageUrl', _.get(data, 'data.url', ''));
+      const finalObj = _.set(
+        _.omit(hookForm.watch(), ['categoryIdHideObj', 'tagsHideObj', 'imgFile']),
+        'imageUrl',
+        _.get(data, 'data.url', '')
+      );
 
       mCreatePost.mutate({
         data: finalObj,
@@ -158,18 +164,10 @@ export default function PostNew() {
     },
   });
 
-  const handleCreatePost = (data)  => {
-
-    // const convertImg = dataURItoBlob(_.get(data, 'imageUrl', ''));
-
-    // const path = `/post/images`;
-    // console.log(file);
+  const handleCreatePost = (data) => {
     const formData = new FormData();
-    formData.append("uploaded_file", file);
-      
-    // formData.append("uploaded_file", convertImg);
-    // console.log(formData);
-    mUploadImage.mutate({formData, token: _.get(user, 'token', '')})
+    formData.append('uploaded_file', hookForm.watch('imgFile'));
+    mUploadImage.mutate({ formData, token: _.get(user, 'token', ''), path: 'post' });
   };
 
   return (
@@ -323,14 +321,39 @@ export default function PostNew() {
                   />
                 </Grid>
 
-                {/* <Grid item xs={6}>
-                  <SelectField hookForm={hookForm} label={'Tag'} name="tags" />
-                </Grid> */}
+                <Grid item xs={6}>
+                  <SelectFieldMultiple
+                    hookForm={hookForm}
+                    label="Tags"
+                    name="tags"
+                    freeSolo
+                    multiple
+                    options={[
+                      {
+                        id: 'Crypto',
+                        name: 'Crypto',
+                      },
+                      {
+                        id: 'Blockchain',
+                        name: 'Blockchain',
+                      },
+                      {
+                        id: 'NFT',
+                        name: 'NFT',
+                      },
+                    ]}
+                  />
+                </Grid>
               </Grid>
             </Paper>
           </Grid>
         </Grid>
-        <LoadingButton loading={Boolean(_.get(mCreatePost, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))} variant="contained" color="primary" onClick={() => hookForm.handleSubmit(handleCreatePost)()}>
+        <LoadingButton
+          loading={Boolean(_.get(mCreatePost, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))}
+          variant="contained"
+          color="primary"
+          onClick={() => hookForm.handleSubmit(handleCreatePost)()}
+        >
           Create Post
         </LoadingButton>
       </Container>
