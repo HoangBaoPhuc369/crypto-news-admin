@@ -5,36 +5,16 @@ import SvgColor from '../../../components/svg-color';
 
 const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
-const navConfig = [
+const navConfigRoleWriter = [
   {
     title: 'dashboard',
     path: '/dashboard/app',
     icon: icon('ic_analytics'),
   },
   {
-    title: 'user',
-    path: '/dashboard/user',
-    icon: icon('ic_user'),
-  },
-  {
     title: 'post',
     path: '/dashboard/post',
     icon: icon('ic_news'),
-  },
-  {
-    title: 'category',
-    path: '/dashboard/category',
-    icon: icon('ic_category'),
-  },
-  {
-    title: 'social',
-    path: '/dashboard/social',
-    icon: icon('ic_social'),
-  },
-  {
-    title: 'banner',
-    path: '/dashboard/banner',
-    icon: icon('ic_banner'),
   },
   // {
   //   title: 'product',
@@ -58,4 +38,4 @@ const navConfig = [
   // },
 ];
 
-export default navConfig;
+export default navConfigRoleWriter;

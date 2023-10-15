@@ -75,7 +75,7 @@ export default function Post() {
       }),
     {
       onSuccess: (data) => {
-        console.log(data);
+        // console.log(data);
         setValue('rows', _.get(data, 'data', []));
       },
       onError: (err) => {},
@@ -89,7 +89,7 @@ export default function Post() {
       console.log(err);
     },
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
       handleCloseMenu();
       qgetListPost.refetch();
     },

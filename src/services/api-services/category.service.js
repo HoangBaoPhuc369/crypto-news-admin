@@ -60,7 +60,7 @@ class CategoryApiService {
   }
 
   updateCategory({ data, token, paramId }) {
-    console.log(data);
+    // console.log(data);
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -46,7 +46,7 @@ export default function Social() {
       }),
     {
       onSuccess: (data) => {
-        console.log(data);
+        // console.log(data);
         setValue('rows', _.get(data, 'data', []));
       },
       onError: (err) => {},

@@ -24,7 +24,7 @@ class PostApiService {
   }
 
   uploadImage(data) {
-    console.log(data);
+    // console.log(data);
     const config = {
       headers: {
         Authorization: `Bearer ${_.get(data,'token', '')}`,

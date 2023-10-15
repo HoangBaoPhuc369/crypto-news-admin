@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -14,6 +15,9 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
 import navConfig from './config';
+import navConfigRoleWriter from './configRoleWriter';
+import { useSelector } from 'react-redux';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +40,7 @@ Nav.propTypes = {
 
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
+  const { user } = useSelector((state) => state.auth);
 
   const isDesktop = useResponsive('up', 'lg');
 
@@ -60,22 +65,25 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
           <StyledAccount>
-            <Avatar src={account.photoURL} alt="photoURL" />
+            <Avatar src={_.get(user, 'user.avatar', '')} alt="photoURL" />
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {_.get(user, 'user.name', '')}
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                {_.get(user, 'user.roles[0]', '')}
               </Typography>
             </Box>
           </StyledAccount>
         </Link>
       </Box>
-
-      <NavSection data={navConfig} />
+      {_.get(user, 'user.roles[0]', '') === 'admin' && Boolean(_.get(user, 'user.active')) ? (
+        <NavSection data={navConfig} />
+      ) : _.get(user, 'user.roles[0]', '') === 'writer' && Boolean(_.get(user, 'user.active')) ? (
+        <NavSection data={navConfigRoleWriter} />
+      ) : null}
 
       <Box sx={{ flexGrow: 1 }} />
     </Scrollbar>

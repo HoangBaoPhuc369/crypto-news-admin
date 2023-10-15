@@ -113,7 +113,9 @@ export default function UserUpdate({ data, close, refetch, userId }) {
         finalObj = _.omit(setImage, 'password');
       }
 
-      mUpdateUser.mutate({ data: finalObj, token: _.get(user, 'token', ''), userId });
+      const final = _.set(finalObj, 'roles', _.concat([], _.get(finalObj, 'roles')));
+
+      mUpdateUser.mutate({ data: final, token: _.get(user, 'token', ''), userId });
     } else {
       let finalObj;
       if (Boolean(_.get(data, 'password'))) {
@@ -122,8 +124,10 @@ export default function UserUpdate({ data, close, refetch, userId }) {
         finalObj = _.omit(data, 'password');
       }
 
+      const final = _.set(finalObj, 'roles', _.concat([], _.get(finalObj, 'roles')));
+
       mUpdateUser.mutate({
-        data: _.omit(finalObj, ['imgFile', 'isEditing', 'activeHideObj', 'rolesHideObj']),
+        data: _.omit(final, ['imgFile', 'isEditing', 'activeHideObj', 'rolesHideObj']),
         token: _.get(user, 'token', ''),
         userId,
       });

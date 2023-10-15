@@ -31,20 +31,20 @@ const SocialDialog = () => {
   useImperativeHandle(baseViewSocialDialogRef, () => ({
     open: (params) => {
       setData(params);
-      mGetCategory.mutate(_.get(params, 'id', ''));
+      mGetSocial.mutate(_.get(params, 'id', ''));
       handleClickOpen();
     },
     close: () => handleClose(),
   }));
 
-  const mGetCategory = useMutation(
+  const mGetSocial = useMutation(
     (data) => SocialApiService.getSocial({ data, token: _.get(user, 'token', '') }),
     {
       onError: (err) => {
         console.log(err);
       },
       onSuccess: (data) => {
-        console.log(data);
+        // console.log(data);
       },
     }
   );
@@ -62,11 +62,11 @@ const SocialDialog = () => {
       >
         <DialogTitle>Update Category</DialogTitle>
         <DialogContent>
-          {Boolean(_.get(mGetCategory, 'isLoading')) ? (
+          {Boolean(_.get(mGetSocial, 'isLoading')) ? (
             <CardLoading title="Loading . . ." />
           ) : (
             <CategoryUpdate
-              data={_.get(mGetCategory, 'data.data')}
+              data={_.get(mGetSocial, 'data.data')}
               close={(reset) => {
                 reset();
                 handleClose();

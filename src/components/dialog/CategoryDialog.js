@@ -44,7 +44,7 @@ const CategoryDialog = () => {
         console.log(err);
       },
       onSuccess: (data) => {
-        console.log(data);
+        // console.log(data);
       },
     }
   );

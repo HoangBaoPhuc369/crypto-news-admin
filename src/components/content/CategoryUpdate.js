@@ -160,12 +160,6 @@ export default function CategoryUpdate({ data, close, refetch, paramId }) {
       </Helmet>
 
       <Container>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h4" gutterBottom>
-            Create a new category
-          </Typography>
-        </Stack>
-
         <Grid container spacing={3} sx={{ mb: '20px' }}>
           <Grid item xs={4}>
             <TextFiedCustom hookForm={hookForm} name="name" label={'Name'} />

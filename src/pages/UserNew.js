@@ -115,7 +115,9 @@ export default function UserNew() {
         'https://res.cloudinary.com/crypto-new-cloud/image/upload/v1697279024/post/0f8b3c4e0b70d524c8841134b6796c27.png.png'
       )
     );
-    mCreateUser.mutate({ data: setImage, token: _.get(user, 'token', '') });
+
+    const final = _.set(setImage, 'roles', _.concat([], _.get(setImage, 'roles')));
+    mCreateUser.mutate({ data: final, token: _.get(user, 'token', '') });
   };
 
   const [isConverting, setIsConverting] = useState(false);

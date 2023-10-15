@@ -65,7 +65,7 @@ export default function UserPage() {
       }),
     {
       onSuccess: (data) => {
-        console.log(data);
+        // console.log(data);
         setValue('rows', _.get(data, 'data.data'));
       },
       onError: (err) => {},
