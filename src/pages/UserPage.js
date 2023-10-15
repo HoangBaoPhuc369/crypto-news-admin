@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable import/order */
 import { Helmet } from 'react-helmet-async';
@@ -36,6 +37,7 @@ import AuthApiService from '../services/api-services/auth.service';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import UserDialog, { baseViewUserDialogRef } from '../components/dialog/UserDialog';
+import toastService from '../services/core/toast.service';
 
 export default function UserPage() {
   const [open, setOpen] = useState(null);
@@ -77,13 +79,29 @@ export default function UserPage() {
       console.log(err);
     },
     onSuccess: (data) => {
-      console.log(data);
       handleCloseMenu();
       qgetListUser.refetch();
+      toastService.toast('success', 'Success', 'Delete User Success!');
     },
   });
 
   const columns = [
+    {
+      id: 'avatar',
+      label: 'Avatar',
+      width: 100,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => {
+        return (
+          <img
+            src={_.get(params, 'avatar', '')}
+            style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }}
+            alt=""
+            loading="lazy"
+          />
+        );
+      },
+    },
     {
       id: 'email',
       label: 'Email',
@@ -95,6 +113,20 @@ export default function UserPage() {
       label: 'Name',
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
+    },
+    {
+      id: 'roles',
+      label: 'Role',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => {
+        const label = _.get(params, 'roles[0]', '') === 'admin' ? 'Admin' : 'Writer';
+        return (
+          <Label color={(_.get(params, 'roles[0]', '') === 'admin' && 'info') || 'warning'}>
+            {sentenceCase(label)}
+          </Label>
+        );
+      },
     },
     {
       id: 'active',
@@ -202,18 +234,25 @@ export default function UserPage() {
         }}
       >
         <MenuItem
-          onClick={() =>
+          onClick={() => {
             baseViewUserDialogRef.current?.open({
               refetch: () => qgetListUser.refetch(),
               userId: _.get(row, '_id', ''),
-            })
-          }
+            });
+            setOpen(null);
+          }}
         >
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
           Edit
         </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }} onClick={() => mDeleteUser.mutate(_.get(row, '_id', ''))}>
+        <MenuItem
+          sx={{ color: 'error.main' }}
+          onClick={() => {
+            mDeleteUser.mutate(_.get(row, '_id', ''));
+            setOpen(null);
+          }}
+        >
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Delete
         </MenuItem>

@@ -9,12 +9,14 @@ import _ from 'lodash';
 import * as React from 'react';
 import { get, UseFormReturn } from 'react-hook-form';
 import { useQuery } from 'react-query';
+import { matchSorter } from 'match-sorter';
 
 export default function SelectFieldMultiple({
   hookForm: {
     register,
     setValue,
     watch,
+    reset,
     formState: { errors, touchedFields },
   },
   label,
@@ -31,7 +33,6 @@ export default function SelectFieldMultiple({
   ...ortherProps
 }) {
   const [open, setOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState('');
 
   // const filterOptions = (optionss, { inputValue }) => {
   //   return optionss.filter(
@@ -41,64 +42,30 @@ export default function SelectFieldMultiple({
   //   );
   // };
 
-  const filterOptions = (options, { inputValue }) => {
-    const filteredOptions = options.filter(
-      (option) =>
-        _.get(option, fieldLabel, '').toLowerCase().includes(inputValue.toLowerCase()) ||
-        _.get(option, fieldId, '').includes(inputValue)
-    );
-
-    // Kiểm tra nếu giá trị nhập vào không có trong danh sách tùy chọn
-    const inputValueExists = options.some((option) => _.get(option, fieldLabel, '') === inputValue);
-
-    // Nếu giá trị nhập vào không có trong danh sách, thêm nó vào danh sách tùy chọn
-    if (inputValue && !inputValueExists) {
-      filteredOptions.push({ [fieldId]: inputValue, [fieldLabel]: inputValue });
-    }
-
-    return filteredOptions;
-  };
+  const filterOptions = (options, { inputValue }) => matchSorter(options, inputValue);
 
   return (
     <Autocomplete
       id={name}
-      multiple
       fullWidth
       open={open}
+      multiple
+      freeSolo
+      autoSelect
       onOpen={() => {
         setOpen(true);
       }}
       onClose={() => {
         setOpen(false);
       }}
-      value={watch(name) || []}
-      isOptionEqualToValue={(option, value) => {
-        if (_.isUndefined(value[fieldId])) return false;
-        return _.get(option, fieldId, '') === _.get(value, fieldId, '');
-      }}
-      getOptionLabel={(option) => `${option[fieldId]}`}
       filterOptions={filterOptions}
       onChange={(event, values, reson, details) => {
         setValue(name, values, { shouldValidate: true });
       }}
-      options={processOptions(options)}
-      freeSolo
-      renderOption={(props, option) => {
-        const label = _.get(option, fieldId) || option;
-        return <li {...props}>{label}</li>;
-      }}
-      // onKeyDown={(e) => {
-      //   if (e.key === 'Enter' || e.key === ' ') {
-      //     e.preventDefault();
-      //     const trimmedValue = inputValue.trim();
-      //     if (trimmedValue && !options.some((option) => option[fieldLabel] === trimmedValue)) {
-      //       const newOption = { [fieldLabel]: trimmedValue };
-      //       setInputValue('');
-      //       // setOptions((prevOptions) => [...prevOptions, newOption]);
-      //       // Thực hiện các hành động khác tại đây, ví dụ: gửi giá trị mới lên server
-      //     }
-      //   }
-      // }}
+      options={options.map((option) => _.get(option, 'name'))}
+      renderTags={(value, getTagProps) =>
+        value.map((option, index) => <Chip key={index} variant="filled" label={option} {...getTagProps({ index })} />)
+      }
       renderInput={(params) => (
         <TextField
           {...params}

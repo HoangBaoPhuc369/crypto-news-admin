@@ -10,6 +10,8 @@ import { StyledChart } from './components/chart';
 import ScrollToTop from './components/scroll-to-top';
 import { Provider } from 'react-redux';
 import { store, persister } from './store';
+import { ToastContainer } from 'react-toastify';
+import './style.css';
 
 // ----------------------------------------------------------------------
 
@@ -19,6 +21,7 @@ export default function App() {
       <HelmetProvider>
         <BrowserRouter>
           <ThemeProvider>
+            <ToastContainer limit={5} enableMultiContainer />
             <ScrollToTop />
             <StyledChart />
             <Router />

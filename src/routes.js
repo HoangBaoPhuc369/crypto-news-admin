@@ -19,6 +19,7 @@ import _ from 'lodash';
 import Category from './pages/Category';
 import CategoryNew from './pages/CategoryNew';
 import Social from './pages/Social';
+import SocialNew from './pages/SocialNew';
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ export default function Router() {
         { path: 'category', element: <Category /> },
         { path: 'category/new', element: <CategoryNew /> },
         { path: 'social', element: <Social /> },
-        { path: 'social/new', element: <CategoryNew /> },
+        { path: 'social/new', element: <SocialNew /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
       ],

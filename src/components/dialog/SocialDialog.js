@@ -4,15 +4,15 @@ import { Box, Dialog, DialogContent, DialogTitle, useMediaQuery, useTheme } from
 import React, { createRef, useImperativeHandle, useState } from 'react';
 import UserUpdate from '../userPage/UserUpdate';
 import _ from 'lodash';
-import CategoryApiService from '../../services/api-services/category.service';
+import SocialApiService from '../../services/api-services/social.service';
 import { useMutation } from 'react-query';
 import { useSelector } from 'react-redux';
 import CardLoading from '../form/CardLoading';
 import CategoryUpdate from '../content/CategoryUpdate';
 
-export const baseViewCategoryDialogRef = createRef();
+export const baseViewSocialDialogRef = createRef();
 
-const CategoryDialog = () => {
+const SocialDialog = () => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
@@ -28,7 +28,7 @@ const CategoryDialog = () => {
     setOpen(false);
   };
 
-  useImperativeHandle(baseViewCategoryDialogRef, () => ({
+  useImperativeHandle(baseViewSocialDialogRef, () => ({
     open: (params) => {
       setData(params);
       mGetCategory.mutate(_.get(params, 'id', ''));
@@ -38,7 +38,7 @@ const CategoryDialog = () => {
   }));
 
   const mGetCategory = useMutation(
-    (data) => CategoryApiService.getCategory({ data, token: _.get(user, 'token', '') }),
+    (data) => SocialApiService.getSocial({ data, token: _.get(user, 'token', '') }),
     {
       onError: (err) => {
         console.log(err);
@@ -81,4 +81,4 @@ const CategoryDialog = () => {
   );
 };
 
-export default CategoryDialog;
+export default SocialDialog;

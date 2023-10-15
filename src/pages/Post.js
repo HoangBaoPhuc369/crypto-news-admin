@@ -5,7 +5,20 @@ import _, { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 // @mui
-import { Card, Stack, Button, Popover, MenuItem, Container, Typography, IconButton, Avatar } from '@mui/material';
+import {
+  Card,
+  Stack,
+  Button,
+  Popover,
+  MenuItem,
+  Container,
+  Typography,
+  IconButton,
+  Avatar,
+  Grid,
+  Box,
+  InputAdornment,
+} from '@mui/material';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -14,29 +27,46 @@ import Iconify from '../components/iconify';
 import { useNavigate } from 'react-router-dom';
 import TableDynamic from '../components/form/TableDynamic';
 import { useMutation, useQuery } from 'react-query';
-import SocialApiService from '../services/api-services/social.service';
+import PostApiService from '../services/api-services/post.service';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/CategoryDialog';
+import TextFiedCustom from '../components/form/TextFiedCustom';
+import SelectField from '../components/form/SelectField';
+import { ReactComponent as SearchIconV2 } from '../svg/SearchIconV2.svg';
 
 export default function Post() {
   const [open, setOpen] = useState(null);
   const [row, setRow] = useState(null);
   const { user } = useSelector((state) => state.auth);
+
+  const languageOpt = [
+    {
+      id: 'English',
+      name: 'English',
+    },
+    {
+      id: 'Japan',
+      name: 'Japan',
+    },
+  ];
+
   const hookForm = useForm({
     defaultValues: {
       rows: [],
       index: 1,
       size: 5,
+      searchText: '',
+      language: '',
     },
   });
 
   const { watch, setValue } = hookForm;
 
-  const qgetListSocial = useQuery(
-    ['qgetListSocial', watch('index'), watch('size'), watch('rows')],
+  const qgetListPost = useQuery(
+    ['qgetListPost', watch('index'), watch('size'), watch('rows')],
     () =>
-      SocialApiService.getListSocial({
+      PostApiService.getListPost({
         data: {
           index: watch('index'),
           size: watch('size'),
@@ -54,14 +84,14 @@ export default function Post() {
     }
   );
 
-  const mDeleteSocial = useMutation((data) => SocialApiService.deleteSocial({ data, token: _.get(user, 'token', '') }), {
+  const mDeletePost = useMutation((data) => PostApiService.deletePost({ data, token: _.get(user, 'token', '') }), {
     onError: (err) => {
       console.log(err);
     },
     onSuccess: (data) => {
       console.log(data);
       handleCloseMenu();
-      qgetListSocial.refetch();
+      qgetListPost.refetch();
     },
   });
 
@@ -78,7 +108,10 @@ export default function Post() {
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
       renderCell: (params) => (
-        <Avatar alt={_.get(params, 'name', '')} src={_.get(params, 'iconUrl', '/assets/images/images/placeholder.png')} />
+        <Avatar
+          alt={_.get(params, 'name', '')}
+          src={_.get(params, 'iconUrl', '/assets/images/images/placeholder.png')}
+        />
       ),
     },
     {
@@ -135,7 +168,7 @@ export default function Post() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Post
+            Post
           </Typography>
           <Button
             variant="contained"
@@ -146,12 +179,33 @@ export default function Post() {
           </Button>
         </Stack>
 
+        <Stack direction="row" alignItems="center" justifyContent="flex-start" gap={2} mb={2}>
+          <Box sx={{ width: '250px' }}>
+            <SelectField name="language" label="Language" hookForm={hookForm} options={languageOpt} />
+          </Box>
+          <Box sx={{ width: '500px' }}>
+            <TextFiedCustom
+              name="searchText"
+              label="Search ..."
+              hookForm={hookForm}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Iconify icon={'eva:search-outline'} width={28} sx={{ cursor: 'pointer' }} />
+                    {/* <SearchIconV2 style={{ width: '28px', height: '28px', cursor: 'pointer' }} /> */}
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+        </Stack>
+
         <Card>
           <TableDynamic
             columns={columns}
             rows={watch('rows') || []}
-            totalRow={_.get(qgetListSocial, 'data.data.total', 5)}
-            loading={Boolean(_.get(qgetListSocial, 'isLoading'))}
+            totalRow={_.get(qgetListPost, 'data.data.total', 5)}
+            loading={Boolean(_.get(qgetListPost, 'isLoading'))}
             rowsPerPage={watch('size')}
             skipCount={(watch('index') - 1) * watch('size') || 0}
             onChangePage={handleChangePage}
@@ -182,7 +236,7 @@ export default function Post() {
           onClick={() => {
             handleCloseMenu();
             baseViewCategoryDialogRef.current?.open({
-              refetch: () => qgetListSocial.refetch(),
+              refetch: () => qgetListPost.refetch(),
               id: _.get(row, '_id', ''),
             });
           }}
@@ -191,7 +245,7 @@ export default function Post() {
           Edit
         </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }} onClick={() => mDeleteSocial.mutate(_.get(row, '_id', ''))}>
+        <MenuItem sx={{ color: 'error.main' }} onClick={() => mDeletePost.mutate(_.get(row, '_id', ''))}>
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Delete
         </MenuItem>

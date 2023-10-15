@@ -37,7 +37,6 @@ import ImageApiService from '../services/api-services/images.service';
 import Editor from '../components/editor';
 import DropImageFile from '../components/form/DropImageFile';
 import { styled } from '@mui/material/styles';
-// import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { LoadingButton } from '@mui/lab';
 import CategoryApiService from '../services/api-services/category.service';
 import { useSelector } from 'react-redux';
@@ -46,6 +45,11 @@ import { useNavigate } from 'react-router-dom';
 import dataURItoBlob from '../helpers/dataURItoBlob';
 // import { img_empty_data } from 'assets/images/img_empty_data.svg';
 import SelectFieldMultiple from '../components/form/SelectFieldMultiple';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import SwitchField from '../components/form/SwitchField';
+import toastService from '../services/core/toast.service';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -66,36 +70,56 @@ export default function PostNew() {
     ['qgetListCategory'],
     () => CategoryApiService.getAllListCategory(_.get(user, 'token')),
     {
-      onSuccess: (data) => {},
-      onError: (err) => {},
-      keepPreviousData: true,
       refetchOnWindowFocus: false,
     }
   );
 
+  const qgetListTags = useQuery(['qgetListTags'], () => CategoryApiService.getAllListTags(_.get(user, 'token')), {
+    refetchOnWindowFocus: false,
+  });
+
+  const yupValid = yup.object().shape({
+    body: yup.array().of(
+      yup.object().shape({
+        title: yup.string().required('Post title is a required field').typeError('Post title is a required field'),
+        subTitle: yup
+          .string()
+          .required('Post subtitle is a required field')
+          .typeError('Post subtitle is a required field'),
+        body: yup.string().required('Content is a required field').typeError('Content is a required field'),
+      })
+    ),
+    imageUrl: yup.string().required('Please choose a image'),
+    tags: yup.array().min(1, 'Please type at least one tag').typeError('Tags is a required field'),
+    categoryId: yup.string().required('Category is a required field').typeError('Category is a required field'),
+  });
+
+  const defaultValues = {
+    body: [
+      {
+        local: 'en',
+        title: '',
+        subTitle: '',
+        body: '',
+      },
+      {
+        local: 'jn',
+        title: '',
+        subTitle: '',
+        body: '',
+      },
+    ],
+    tags: [],
+    categoryId: '',
+    imageUrl: '',
+    imgFile: null,
+    hidden: false,
+    status: false,
+  };
+
   const hookForm = useForm({
-    defaultValues: {
-      body: [
-        {
-          local: 'en',
-          title: '',
-          subTitle: '',
-          body: '',
-        },
-        {
-          local: 'ja',
-          title: '',
-          subTitle: '',
-          body: '',
-        },
-      ],
-      tags: [],
-      categoryId: '',
-      imageUrl: '',
-      imgFile: null,
-      hidden: false,
-      status: 99, // 1 -> tạo; 99 -> xuất bản
-    },
+    defaultValues,
+    resolver: yupResolver(yupValid),
   });
 
   // useEffect(() => {
@@ -103,7 +127,6 @@ export default function PostNew() {
   // }, [hookForm.watch()]);
 
   const [isConverting, setIsConverting] = useState(false);
-  const [file, setFile] = useState(false);
 
   const handleImages = (e) => {
     setIsConverting(true);
@@ -115,12 +138,14 @@ export default function PostNew() {
         img.type !== 'image/webp' &&
         img.type !== 'image/gif'
       ) {
-        // dispatch(setError(
-        //   `${img.name} format is unsupported ! only Jpeg, Png, Webp, Gif are allowed.`
-        // ));
+        toastService.toast(
+          'error',
+          'Warning',
+          `${img.name} format is unsupported ! only Jpeg, Png, Webp, Gif are allowed.`
+        );
         files = files.filter((item) => item.name !== img.name);
       } else if (img.size > 1024 * 1024) {
-        // dispatch(setError(`${img.name} size is too large max 5mb allowed.`));
+        toastService.toast('error', 'Warning', `${img.name} size is too large max 5mb allowed.`);
         files = files.filter((item) => item.name !== img.name);
       } else {
         const reader = new FileReader();
@@ -128,19 +153,20 @@ export default function PostNew() {
         reader.onload = (readerEvent) => {
           setIsConverting(false);
           hookForm.setValue('imgFile', _.get(e, 'target.files[0]', null));
-          hookForm.setValue('imageUrl', readerEvent.target.result);
+          hookForm.setValue('imageUrl', readerEvent.target.result, { shouldValidate: true });
         };
       }
     });
   };
 
   const navigate = useNavigate();
+
   const mCreatePost = useMutation((data) => PostApiService.createPost(data), {
     onError: (err) => {
-      console.log(err);
+      toastService.toast('error', 'Error', 'Create Post Failed!');
     },
     onSuccess: (data) => {
-      console.log(data);
+      toastService.toast('success', 'Success', 'Create Post Success!');
       hookForm.reset();
       navigate('/dashboard/post');
     },
@@ -148,26 +174,36 @@ export default function PostNew() {
 
   const mUploadImage = useMutation((data) => ImageApiService.uploadImage(data), {
     onError: (err) => {
-      console.log(err);
-    },
-    onSuccess: (data) => {
-      const finalObj = _.set(
-        _.omit(hookForm.watch(), ['categoryIdHideObj', 'tagsHideObj', 'imgFile']),
-        'imageUrl',
-        _.get(data, 'data.url', '')
-      );
-
-      mCreatePost.mutate({
-        data: finalObj,
-        token: _.get(user, 'token', ''),
-      });
+      toastService.toast('error', 'Error', 'Upload Image Failed!');
     },
   });
 
-  const handleCreatePost = (data) => {
+  const handleCreatePost = async (data) => {
     const formData = new FormData();
     formData.append('uploaded_file', hookForm.watch('imgFile'));
-    mUploadImage.mutate({ formData, token: _.get(user, 'token', ''), path: 'post' });
+    const uploadedImage = await mUploadImage.mutateAsync({ formData, token: _.get(user, 'token', ''), path: 'post' });
+    const setImage = _.set(
+      _.omit(data, ['categoryIdHideObj', 'imgFile']),
+      'imageUrl',
+      _.get(
+        uploadedImage,
+        'data.url',
+        'https://res.cloudinary.com/crypto-new-cloud/image/upload/v1697279024/post/0f8b3c4e0b70d524c8841134b6796c27.png.png'
+      )
+    );
+
+    const finalObj = _.set(setImage, 'status', Boolean(_.get(data, 'status')) ? 99 : 1);
+
+    mCreatePost.mutate({ data: finalObj, token: _.get(user, 'token', '') });
+  };
+
+  const {
+    formState: { errors },
+  } = hookForm;
+
+  const handleBack = () => {
+    hookForm.reset();
+    navigate('/dashboard/post');
   };
 
   return (
@@ -219,7 +255,17 @@ export default function PostNew() {
                   </Typography>
 
                   <Box>
-                    <Editor hanldeEditor={(data) => hookForm.setValue('body[0].body', data)} />
+                    <Editor
+                      hanldeEditor={(data) => hookForm.setValue('body[0].body', data, { shouldValidate: true })}
+                    />
+                    {Boolean(_.get(errors, 'body[0].body.message')) ? (
+                      <Typography
+                        variant="caption"
+                        sx={{ color: '#FF4842', fontSize: '12px', fontWeight: '400', margin: '0 0 0 14px' }}
+                      >
+                        {_.get(errors, 'body[0].body.message')}
+                      </Typography>
+                    ) : null}
                   </Box>
                 </Grid>
               </Grid>
@@ -259,28 +305,48 @@ export default function PostNew() {
                   </Typography>
 
                   <Box>
-                    <Editor hanldeEditor={(data) => hookForm.setValue('body[1].body', data)} />
+                    <Editor
+                      hanldeEditor={(data) => hookForm.setValue('body[1].body', data, { shouldValidate: true })}
+                    />
+                    {Boolean(_.get(errors, 'body[1].body.message')) ? (
+                      <Typography
+                        variant="caption"
+                        sx={{ color: '#FF4842', fontSize: '12px', fontWeight: '400', margin: '0 0 0 14px' }}
+                      >
+                        {_.get(errors, 'body[1].body.message')}
+                      </Typography>
+                    ) : null}
                   </Box>
                 </Grid>
               </Grid>
             </Paper>
 
             <Grid container spacing={2} mb={2}>
-              <Grid item xs={12}>
+              <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: '600', mb: '20px' }}>
                   Image
                 </Typography>
 
                 {/* <DropImageFile /> */}
-                <LoadingButton
-                  loading={isConverting}
-                  component="label"
-                  variant="contained"
-                  // startIcon={<CloudUploadIcon />}
-                >
-                  Upload file
-                  <VisuallyHiddenInput type="file" accept="image/*" onChange={handleImages} />
-                </LoadingButton>
+                <Grid item>
+                  <LoadingButton
+                    loading={isConverting}
+                    component="label"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}
+                  >
+                    Upload file
+                    <VisuallyHiddenInput type="file" accept="image/*" onChange={handleImages} />
+                  </LoadingButton>
+                </Grid>
+                {Boolean(_.get(errors, 'imageUrl.message')) ? (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: '#FF4842', fontSize: '12px', fontWeight: '400', margin: '0 0 0 14px' }}
+                  >
+                    {_.get(errors, 'imageUrl.message')}
+                  </Typography>
+                ) : null}
 
                 {Boolean(hookForm.watch('imageUrl')) ? (
                   <Paper
@@ -310,7 +376,7 @@ export default function PostNew() {
                 <Grid item xs={6}>
                   <SelectField
                     hookForm={hookForm}
-                    label={'Category'}
+                    label="Category"
                     name="categoryId"
                     options={_.map(_.get(qgetListCategory, 'data.data', []), (item) => {
                       return {
@@ -326,36 +392,32 @@ export default function PostNew() {
                     hookForm={hookForm}
                     label="Tags"
                     name="tags"
-                    freeSolo
-                    multiple
-                    options={[
-                      {
-                        id: 'Crypto',
-                        name: 'Crypto',
-                      },
-                      {
-                        id: 'Blockchain',
-                        name: 'Blockchain',
-                      },
-                      {
-                        id: 'NFT',
-                        name: 'NFT',
-                      },
-                    ]}
+                    placeholder="Tags"
+                    options={_.get(qgetListTags, 'data.data', [])}
                   />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <SwitchField hookForm={hookForm} label="Publish" name="status" />
                 </Grid>
               </Grid>
             </Paper>
           </Grid>
         </Grid>
-        <LoadingButton
-          loading={Boolean(_.get(mCreatePost, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))}
-          variant="contained"
-          color="primary"
-          onClick={() => hookForm.handleSubmit(handleCreatePost)()}
-        >
-          Create Post
-        </LoadingButton>
+        <Box sx={{ display: 'flex', gap: '15px' }}>
+          <LoadingButton
+            loading={Boolean(_.get(mCreatePost, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))}
+            variant="contained"
+            color="primary"
+            onClick={() => hookForm.handleSubmit(handleCreatePost)()}
+          >
+            Create Post
+          </LoadingButton>
+
+          <Button variant="default" sx={{ backgroundColor: 'grey.300' }} onClick={() => handleBack()}>
+            Back
+          </Button>
+        </Box>
       </Container>
     </>
   );

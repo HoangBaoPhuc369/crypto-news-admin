@@ -18,6 +18,7 @@ import SocialApiService from '../services/api-services/social.service';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/CategoryDialog';
+import toastService from '../services/core/toast.service';
 
 export default function Social() {
   const [open, setOpen] = useState(null);
@@ -54,17 +55,6 @@ export default function Social() {
     }
   );
 
-  const mDeleteSocial = useMutation((data) => SocialApiService.deleteSocial({ data, token: _.get(user, 'token', '') }), {
-    onError: (err) => {
-      console.log(err);
-    },
-    onSuccess: (data) => {
-      console.log(data);
-      handleCloseMenu();
-      qgetListSocial.refetch();
-    },
-  });
-
   const columns = [
     {
       id: 'name',
@@ -78,7 +68,10 @@ export default function Social() {
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
       renderCell: (params) => (
-        <Avatar alt={_.get(params, 'name', '')} src={_.get(params, 'iconUrl', '/assets/images/images/placeholder.png')} />
+        <Avatar
+          alt={_.get(params, 'name', '')}
+          src={_.get(params, 'iconUrl', '/assets/images/images/placeholder.png')}
+        />
       ),
     },
     {
@@ -126,6 +119,17 @@ export default function Social() {
     setValue('index', 1);
   };
 
+  const mDeleteSocial = useMutation((data) => SocialApiService.deleteSocial({ data, token: _.get(user, 'token', '') }), {
+    onError: (err) => {
+      console.log(err);
+    },
+    onSuccess: (data) => {
+      handleCloseMenu();
+      qgetListSocial.refetch();
+      toastService.toast('success', 'Success', 'Delete Social Success!');
+    },
+  });
+
   return (
     <>
       <Helmet>
@@ -135,12 +139,12 @@ export default function Social() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Social
+            Social
           </Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={() => navigate('/dashboard/category/new')}
+            onClick={() => navigate('/dashboard/social/new')}
           >
             New Social
           </Button>

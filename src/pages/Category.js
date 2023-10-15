@@ -5,7 +5,7 @@ import _, { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 // @mui
-import { Card, Stack, Button, Popover, MenuItem, Container, Typography, IconButton } from '@mui/material';
+import { Card, Stack, Button, Popover, MenuItem, Container, Typography, IconButton, Box } from '@mui/material';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -18,6 +18,7 @@ import CategoryApiService from '../services/api-services/category.service';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/CategoryDialog';
+import toastService from '../services/core/toast.service';
 
 export default function Category() {
   const [open, setOpen] = useState(null);
@@ -54,28 +55,50 @@ export default function Category() {
     }
   );
 
-  const mDeleteCategory = useMutation((data) => CategoryApiService.deleteCategory({ data, token: _.get(user, 'token', '') }), {
-    onError: (err) => {
-      console.log(err);
-    },
-    onSuccess: (data) => {
-      console.log(data);
-      handleCloseMenu();
-      qgetListCategory.refetch();
-    },
-  });
+  const mDeleteCategory = useMutation(
+    (data) => CategoryApiService.deleteCategory({ data, token: _.get(user, 'token', '') }),
+    {
+      onError: (err) => {
+        console.log(err);
+      },
+      onSuccess: (data) => {
+        handleCloseMenu();
+        qgetListCategory.refetch();
+        toastService.toast('success', 'Success', 'Delete Category Success!');
+      },
+    }
+  );
 
   const columns = [
     {
       id: 'name',
       label: 'Name',
+      width: 150,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+    },
+    {
+      id: 'imageUrl',
+      label: 'image',
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => (
+        <Box>
+          <img
+            src={_.get(
+              params,
+              'imageUrl',
+              'https://res.cloudinary.com/crypto-new-cloud/image/upload/v1697279024/post/0f8b3c4e0b70d524c8841134b6796c27.png.png'
+            )}
+            alt=""
+            style={{ width: '150px', height: '50px', objectFit: 'cover', borderRadius: '12px' }}
+          />
+        </Box>
+      ),
     },
     {
       id: 'action',
       label: 'Action',
-      width: 200,
+      width: 100,
       headerCellSX: { bgcolor: '#EAEEF2' },
       renderCell: (params) => (
         <IconButton
