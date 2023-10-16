@@ -5,13 +5,30 @@ import axiosServices from '../../components/utils/axios';
 class PostApiService {
   baseApi = 'https://cryptonew-v8jk.onrender.com/';
 
-  getListSocial({ data, token }) {
+  getListPost({ data, token }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.get(`${this.baseApi}socials`, config);
+
+    const params = {
+      page: _.get(data, 'index', 1),
+      page_size: _.get(data, 'size', 5),
+      searchText: _.get(data, 'searchText', ''),
+      local: _.get(data, 'language', ''),
+    };
+
+    const result = _.pickBy(params, _.identity);
+    console.log(result);
+
+    return axiosServices.get(
+      `${this.baseApi}admin/posts`,
+      {
+        params: result,
+      },
+      config
+    );
   }
 
   createPost({ data, token }) {
@@ -27,13 +44,12 @@ class PostApiService {
     // console.log(data);
     const config = {
       headers: {
-        Authorization: `Bearer ${_.get(data,'token', '')}`,
+        Authorization: `Bearer ${_.get(data, 'token', '')}`,
         'Content-Type': 'multipart/form-data',
       },
     };
     return axiosServices.post(`${this.baseApi}uploads/stats`, _.get(data, 'formData', null), config);
   }
-
 
   getSocial({ data, token }) {
     const config = {

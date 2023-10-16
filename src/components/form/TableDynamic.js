@@ -148,7 +148,7 @@ export default function TableDynamic({
                       {/* <img src={img_empty_data} alt="No Data !" /> */}
                       No data
                       <Typography variant="subtitle1" fontStyle="italic" sx={{ mt: 1, mb: 3 }}>
-                        Không tìm thấy dữ liệu !
+                        Data not found !
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -168,7 +168,7 @@ export default function TableDynamic({
           page={skipCount / rowsPerPage}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Tổng số trên 1 trang:"
+          labelRowsPerPage="Rows per page:"
           nextIconButtonProps={{
             sx: { display: 'none' },
           }}
@@ -178,7 +178,7 @@ export default function TableDynamic({
           labelDisplayedRows={(paginationInfo) => (
             <Typography component={'span'} variant={'body2'}>
               <Typography variant="subtitle2" sx={{ ml: 1.5 }} component="span">
-                Hiển thị từ {paginationInfo.from} - {paginationInfo.to} trên tổng số {paginationInfo.count}
+                Showing {paginationInfo.from} - {paginationInfo.to} of {paginationInfo.count}
               </Typography>
               <Pagination
                 count={Math.floor((paginationInfo.count + rowsPerPage - 1) / rowsPerPage)}

@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable import/order */
 import { Helmet } from 'react-helmet-async';
@@ -64,19 +65,21 @@ export default function Post() {
   const { watch, setValue } = hookForm;
 
   const qgetListPost = useQuery(
-    ['qgetListPost', watch('index'), watch('size'), watch('rows')],
+    ['qgetListPost', watch('index'), watch('size'), watch('rows'), watch('language'), watch('searchText')],
     () =>
       PostApiService.getListPost({
         data: {
           index: watch('index'),
           size: watch('size'),
+          searchText: watch('searchText'),
+          language: watch('language'),
         },
         token: _.get(user, 'token'),
       }),
     {
       onSuccess: (data) => {
-        // console.log(data);
-        setValue('rows', _.get(data, 'data', []));
+        console.log(data);
+        setValue('rows', _.get(data, 'data.data', []));
       },
       onError: (err) => {},
       keepPreviousData: true,
@@ -97,26 +100,76 @@ export default function Post() {
 
   const columns = [
     {
-      id: 'name',
-      label: 'Name',
-      width: 200,
-      headerCellSX: { bgcolor: '#EAEEF2' },
-    },
-    {
-      id: 'iconUrl',
-      label: 'icon',
+      id: 'imageUrl',
+      label: 'Image',
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
       renderCell: (params) => (
-        <Avatar
-          alt={_.get(params, 'name', '')}
-          src={_.get(params, 'iconUrl', '/assets/images/images/placeholder.png')}
+        <img
+          src={_.get(params, 'imageUrl', '/assets/images/images/placeholder.png')}
+          alt=""
+          loading="lazy"
+          style={{ width: '100px', height: '60px', objectFit: 'cover', borderRadius: '12px' }}
         />
       ),
     },
     {
-      id: 'link',
-      label: 'Link',
+      id: 'title',
+      label: 'Title',
+      width: 150,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => (
+        <Typography
+          sx={{
+            width: '250px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+          }}
+          variant="subtitle1"
+          component="div"
+        >
+          {_.get(params, 'title', '')}
+        </Typography>
+      ),
+    },
+    {
+      id: 'author',
+      label: 'icon',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Avatar
+            alt={_.get(params, 'author.name', '')}
+            src={_.get(params, 'author.avatar', '/assets/images/images/placeholder.png')}
+          />
+          <Box>
+            <Typography variant="subtitle2">{_.get(params, 'author.name', '')}</Typography>
+            <Typography variant="caption">{_.get(params, 'author.email', '')}</Typography>
+          </Box>
+        </Box>
+      ),
+    },
+    {
+      id: 'views',
+      label: 'Views',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => {
+        const label = _.get(params, 'status') === 1 ? 'unpublish' : 'publish';
+        return <Label color={(_.get(params, 'status') === 1 && 'error') || 'success'}>{sentenceCase(label)}</Label>;
+      },
+    },
+    {
+      id: 'local',
+      label: 'Language',
       width: 200,
       headerCellSX: { bgcolor: '#EAEEF2' },
     },
@@ -210,6 +263,7 @@ export default function Post() {
             skipCount={(watch('index') - 1) * watch('size') || 0}
             onChangePage={handleChangePage}
             onChangeRowsPerPage={handleChangeRowsPerPage}
+            sxTable={{ width: '100%', whiteSpace: 'nowrap' }}
           />
         </Card>
       </Container>

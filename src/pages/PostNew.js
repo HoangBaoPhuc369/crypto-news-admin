@@ -70,6 +70,9 @@ export default function PostNew() {
     ['qgetListCategory'],
     () => CategoryApiService.getAllListCategory(_.get(user, 'token')),
     {
+      onSuccess: (data) => {
+        // console.log(data);
+      },
       refetchOnWindowFocus: false,
     }
   );
@@ -103,7 +106,7 @@ export default function PostNew() {
         body: '',
       },
       {
-        local: 'jn',
+        local: 'jp',
         title: '',
         subTitle: '',
         body: '',
@@ -378,7 +381,7 @@ export default function PostNew() {
                     hookForm={hookForm}
                     label="Category"
                     name="categoryId"
-                    options={_.map(_.get(qgetListCategory, 'data.data', []), (item) => {
+                    options={_.map(_.get(qgetListCategory, 'data.data.data', []), (item) => {
                       return {
                         id: _.get(item, '_id', ''),
                         name: _.get(item, 'name', ''),
