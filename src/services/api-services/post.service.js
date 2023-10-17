@@ -15,7 +15,7 @@ class PostApiService {
     const params = {
       page: _.get(data, 'index', 1),
       page_size: _.get(data, 'size', 5),
-      searchText: _.get(data, 'searchText', ''),
+      key_word: _.get(data, 'searchText', ''),
       local: _.get(data, 'language', ''),
     };
 
@@ -51,16 +51,24 @@ class PostApiService {
     return axiosServices.post(`${this.baseApi}uploads/stats`, _.get(data, 'formData', null), config);
   }
 
-  getSocial({ data, token }) {
+  getPost({ data, token }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.get(`${this.baseApi}socials/${data}`, config);
+    return axiosServices.get(
+      `${this.baseApi}posts/${_.get(data, 'id')}`,
+      {
+        params: {
+          local: _.get(data, 'local'),
+        },
+      },
+      config
+    );
   }
 
-  updateSocial({ data, token, paramId }) {
+  updatePost({ data, token, paramId }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -69,7 +77,7 @@ class PostApiService {
     return axiosServices.put(`${this.baseApi}socials/${paramId}`, data, config);
   }
 
-  deleteSocial({ data, token }) {
+  deletePost({ data, token }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -39,15 +39,16 @@ import { ReactComponent as SearchIconV2 } from '../svg/SearchIconV2.svg';
 export default function Post() {
   const [open, setOpen] = useState(null);
   const [row, setRow] = useState(null);
+  const [stext, setStext] = useState('');
   const { user } = useSelector((state) => state.auth);
 
   const languageOpt = [
     {
-      id: 'English',
+      id: 'en',
       name: 'English',
     },
     {
-      id: 'Japan',
+      id: 'jp',
       name: 'Japan',
     },
   ];
@@ -65,13 +66,13 @@ export default function Post() {
   const { watch, setValue } = hookForm;
 
   const qgetListPost = useQuery(
-    ['qgetListPost', watch('index'), watch('size'), watch('rows'), watch('language'), watch('searchText')],
+    ['qgetListPost', watch('index'), watch('size'), watch('rows'), watch('language'), stext],
     () =>
       PostApiService.getListPost({
         data: {
           index: watch('index'),
           size: watch('size'),
-          searchText: watch('searchText'),
+          searchText: stext,
           language: watch('language'),
         },
         token: _.get(user, 'token'),
@@ -244,7 +245,12 @@ export default function Post() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <Iconify icon={'eva:search-outline'} width={28} sx={{ cursor: 'pointer' }} />
+                    <Iconify
+                      icon={'eva:search-outline'}
+                      width={28}
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() => setStext(watch('searchText'))}
+                    />
                     {/* <SearchIconV2 style={{ width: '28px', height: '28px', cursor: 'pointer' }} /> */}
                   </InputAdornment>
                 ),
@@ -287,12 +293,19 @@ export default function Post() {
         }}
       >
         <MenuItem
+          sx={{ color: 'info.main' }}
+          // onClick={() => navigate(`/post/edit/${_.get(row, '_id', '')}/${_.get(row, 'local', '')}`)}
+        >
+          <Iconify icon={'eva:eye-outline'} sx={{ mr: 2 }} />
+          View
+        </MenuItem>
+
+        <MenuItem
           onClick={() => {
             handleCloseMenu();
-            baseViewCategoryDialogRef.current?.open({
-              refetch: () => qgetListPost.refetch(),
-              id: _.get(row, '_id', ''),
-            });
+            console.log(row);
+            console.log(`/post/edit/${_.get(row, '_id', '')}/${_.get(row, 'local', '')}`);
+            navigate(`/dashboard/post/edit/${_.get(row, '_id', '')}/local/${_.get(row, 'local', '')}`);
           }}
         >
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />

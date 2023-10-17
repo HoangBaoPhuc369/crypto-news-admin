@@ -20,6 +20,7 @@ import Category from './pages/Category';
 import CategoryNew from './pages/CategoryNew';
 import Social from './pages/Social';
 import SocialNew from './pages/SocialNew';
+import PostEdit from './pages/PostEdit';
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +38,7 @@ export default function Router() {
         { path: 'user/new', element: <UserNew /> },
         { path: 'post', element: <Post /> },
         { path: 'post/new', element: <PostNew /> },
+        { path: 'post/edit/:id/local/:local', element: <PostEdit /> },
         { path: 'category', element: <Category /> },
         { path: 'category/new', element: <CategoryNew /> },
         { path: 'social', element: <Social /> },

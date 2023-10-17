@@ -23,7 +23,7 @@ import { useSelector } from 'react-redux';
 
 Quill.register('modules/imageResize', ImageResize);
 
-const Editor = ({ hanldeEditor }) => {
+const Editor = ({ hanldeEditor, initialData }) => {
   const { user } = useSelector((state) => state.auth);
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} },
@@ -102,6 +102,10 @@ const Editor = ({ hanldeEditor }) => {
 
   useEffect(() => {
     if (quill) {
+      if (initialData) {
+        quill.clipboard.dangerouslyPasteHTML(initialData);
+      }
+
       quill.getModule('toolbar').addHandler('image', selectLocalImage);
 
       quill.on('text-change', (delta, oldContents) => {

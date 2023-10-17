@@ -52,6 +52,7 @@ export default function SelectFieldMultiple({
       multiple
       freeSolo
       autoSelect
+      value={watch(name) || []}
       onOpen={() => {
         setOpen(true);
       }}
