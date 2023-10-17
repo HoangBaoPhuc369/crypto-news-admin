@@ -112,6 +112,7 @@ export default function PostEdit() {
     categoryId: '',
     imageUrl: '',
     imgFile: null,
+    isEditing: false,
     // hidden: false,
     // status: false,
   };
@@ -181,6 +182,7 @@ export default function PostEdit() {
         reader.onload = (readerEvent) => {
           setIsConverting(false);
           hookForm.setValue('imgFile', _.get(e, 'target.files[0]', null));
+          hookForm.setValue('isEditing', true);
           hookForm.setValue('imageUrl', readerEvent.target.result, { shouldValidate: true });
         };
       }
@@ -189,7 +191,7 @@ export default function PostEdit() {
 
   const navigate = useNavigate();
 
-  const mCreatePost = useMutation((data) => PostApiService.createPost(data), {
+  const mUpdatePost = useMutation((data) => PostApiService.updatePost(data), {
     onError: (err) => {
       toastService.toast('error', 'Error', 'Create Post Failed!');
     },
@@ -207,22 +209,27 @@ export default function PostEdit() {
   });
 
   const handleCreatePost = async (data) => {
-    const formData = new FormData();
-    formData.append('uploaded_file', hookForm.watch('imgFile'));
-    const uploadedImage = await mUploadImage.mutateAsync({ formData, token: _.get(user, 'token', ''), path: 'post' });
-    const setImage = _.set(
-      _.omit(data, ['categoryIdHideObj', 'imgFile']),
-      'imageUrl',
-      _.get(
-        uploadedImage,
-        'data.url',
-        'https://res.cloudinary.com/crypto-new-cloud/image/upload/v1697279024/post/0f8b3c4e0b70d524c8841134b6796c27.png.png'
-      )
-    );
+    if (Boolean(_.get(data, 'isEditing'))) {
+      const formData = new FormData();
+      formData.append('uploaded_file', hookForm.watch('imgFile'));
+      const uploadedImage = await mUploadImage.mutateAsync({ formData, token: _.get(user, 'token', ''), path: 'post' });
+      const setImage = _.set(
+        _.omit(data, ['categoryIdHideObj', 'imgFile', 'isEditing']),
+        'imageUrl',
+        _.get(
+          uploadedImage,
+          'data.url',
+          'https://res.cloudinary.com/crypto-new-cloud/image/upload/v1697279024/post/0f8b3c4e0b70d524c8841134b6796c27.png.png'
+        )
+      );
 
-    const finalObj = _.set(setImage, 'status', Boolean(_.get(data, 'status')) ? 99 : 1);
+      const finalObj = _.set(setImage, 'status', Boolean(_.get(data, 'status')) ? 99 : 1);
 
-    mCreatePost.mutate({ data: finalObj, token: _.get(user, 'token', '') });
+      mUpdatePost.mutate({ data: finalObj, token: _.get(user, 'token', ''), paramId: id });
+    } else {
+      const oldData = _.omit(data, ['categoryIdHideObj', 'imgFile', 'isEditing']);
+      mUpdatePost.mutate({ data: oldData, token: _.get(user, 'token', ''), paramId: id });
+    }
   };
 
   const {
@@ -289,7 +296,7 @@ export default function PostEdit() {
                       <Box>
                         <Editor
                           hanldeEditor={(data) => hookForm.setValue('body[0].body', data, { shouldValidate: true })}
-                          initialData={watch('body[0].body')}
+                          initialData={_.get(qgetPost, 'data.data.body', '')}
                         />
                         {Boolean(_.get(errors, 'body[0].body.message')) ? (
                           <Typography
@@ -391,12 +398,12 @@ export default function PostEdit() {
             </Grid>
             <Box sx={{ display: 'flex', gap: '15px' }}>
               <LoadingButton
-                loading={Boolean(_.get(mCreatePost, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))}
+                loading={Boolean(_.get(mUpdatePost, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))}
                 variant="contained"
                 color="primary"
                 onClick={() => hookForm.handleSubmit(handleCreatePost)()}
               >
-                Create Post
+                Update Post
               </LoadingButton>
 
               <Button variant="default" sx={{ backgroundColor: 'grey.300' }} onClick={() => handleBack()}>

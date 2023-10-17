@@ -69,12 +69,13 @@ class PostApiService {
   }
 
   updatePost({ data, token, paramId }) {
+    console.log(data);
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.put(`${this.baseApi}socials/${paramId}`, data, config);
+    return axiosServices.put(`${this.baseApi}posts/${paramId}`, data, config);
   }
 
   deletePost({ data, token }) {

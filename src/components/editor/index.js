@@ -102,10 +102,6 @@ const Editor = ({ hanldeEditor, initialData }) => {
 
   useEffect(() => {
     if (quill) {
-      if (initialData) {
-        quill.clipboard.dangerouslyPasteHTML(initialData);
-      }
-
       quill.getModule('toolbar').addHandler('image', selectLocalImage);
 
       quill.on('text-change', (delta, oldContents) => {
@@ -113,6 +109,12 @@ const Editor = ({ hanldeEditor, initialData }) => {
       });
     }
   }, [quill, Quill]);
+
+  React.useEffect(() => {
+    if (quill && initialData) {
+      quill.clipboard.dangerouslyPasteHTML(initialData);
+    }
+  }, [quill, initialData]);
 
   return (
     <>
