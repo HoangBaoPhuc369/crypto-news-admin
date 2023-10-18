@@ -1,19 +1,20 @@
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable import/order */
-import { Box, Dialog, DialogContent, DialogTitle, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import React, { createRef, useImperativeHandle, useState } from 'react';
 import UserUpdate from '../userPage/UserUpdate';
 import _ from 'lodash';
-import SocialApiService from '../../services/api-services/social.service';
+import PostApiService from '../../services/api-services/post.service';
 import { useMutation } from 'react-query';
 import { useSelector } from 'react-redux';
 import CardLoading from '../form/CardLoading';
 import CategoryUpdate from '../content/CategoryUpdate';
-import SocialUpdate from '../content/SocialUpdate';
+import PostDetail from '../content/PostDetail';
+import CloseIcon from '@mui/icons-material/Close';
 
-export const baseViewSocialDialogRef = createRef();
+export const baseViewPostDetailDialogRef = createRef();
 
-const SocialDialog = () => {
+const PostDetailDialog = () => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
@@ -29,16 +30,16 @@ const SocialDialog = () => {
     setOpen(false);
   };
 
-  useImperativeHandle(baseViewSocialDialogRef, () => ({
+  useImperativeHandle(baseViewPostDetailDialogRef, () => ({
     open: (params) => {
       setData(params);
-      mGetSocial.mutate(_.get(params, 'id', ''));
+      mGetPost.mutate(params);
       handleClickOpen();
     },
     close: () => handleClose(),
   }));
 
-  const mGetSocial = useMutation((data) => SocialApiService.getSocial({ data, token: _.get(user, 'token', '') }), {
+  const mGetPost = useMutation((data) => PostApiService.getPost({ data, token: _.get(user, 'token', '') }), {
     onError: (err) => {
       console.log(err);
     },
@@ -58,20 +59,24 @@ const SocialDialog = () => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle>Update Social</DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: 'grey.500',
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogTitle>Post Detail</DialogTitle>
         <DialogContent>
-          {Boolean(_.get(mGetSocial, 'isLoading')) ? (
+          {Boolean(_.get(mGetPost, 'isLoading')) ? (
             <CardLoading title="Loading . . ." />
           ) : (
-            <SocialUpdate
-              data={_.get(mGetSocial, 'data.data')}
-              close={(reset) => {
-                reset();
-                handleClose();
-              }}
-              refetch={data?.refetch}
-              paramId={data?.id}
-            />
+            <PostDetail data={_.get(mGetPost, 'data.data')} close={() => handleClose()} />
           )}
         </DialogContent>
       </Dialog>
@@ -79,4 +84,4 @@ const SocialDialog = () => {
   );
 };
 
-export default SocialDialog;
+export default PostDetailDialog;

@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/CategoryDialog';
 import toastService from '../services/core/toast.service';
+import SocialDialog, { baseViewSocialDialogRef } from '../components/dialog/SocialDialog';
 
 export default function Social() {
   const [open, setOpen] = useState(null);
@@ -46,8 +47,8 @@ export default function Social() {
       }),
     {
       onSuccess: (data) => {
-        // console.log(data);
-        setValue('rows', _.get(data, 'data', []));
+        console.log(data);
+        setValue('rows', _.get(data, 'data.data', []));
       },
       onError: (err) => {},
       keepPreviousData: true,
@@ -119,16 +120,19 @@ export default function Social() {
     setValue('index', 1);
   };
 
-  const mDeleteSocial = useMutation((data) => SocialApiService.deleteSocial({ data, token: _.get(user, 'token', '') }), {
-    onError: (err) => {
-      console.log(err);
-    },
-    onSuccess: (data) => {
-      handleCloseMenu();
-      qgetListSocial.refetch();
-      toastService.toast('success', 'Success', 'Delete Social Success!');
-    },
-  });
+  const mDeleteSocial = useMutation(
+    (data) => SocialApiService.deleteSocial({ data, token: _.get(user, 'token', '') }),
+    {
+      onError: (err) => {
+        console.log(err);
+      },
+      onSuccess: (data) => {
+        handleCloseMenu();
+        qgetListSocial.refetch();
+        toastService.toast('success', 'Success', 'Delete Social Success!');
+      },
+    }
+  );
 
   return (
     <>
@@ -185,7 +189,7 @@ export default function Social() {
         <MenuItem
           onClick={() => {
             handleCloseMenu();
-            baseViewCategoryDialogRef.current?.open({
+            baseViewSocialDialogRef.current?.open({
               refetch: () => qgetListSocial.refetch(),
               id: _.get(row, '_id', ''),
             });
@@ -201,7 +205,7 @@ export default function Social() {
         </MenuItem>
       </Popover>
 
-      <CategoryDialog />
+      <SocialDialog />
     </>
   );
 }

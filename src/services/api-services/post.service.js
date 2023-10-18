@@ -20,8 +20,6 @@ class PostApiService {
     };
 
     const result = _.pickBy(params, _.identity);
-    console.log(result);
-
     return axiosServices.get(
       `${this.baseApi}admin/posts`,
       {
@@ -58,7 +56,7 @@ class PostApiService {
       },
     };
     return axiosServices.get(
-      `${this.baseApi}posts/${_.get(data, 'id')}`,
+      `${this.baseApi}admin/posts/${_.get(data, 'id')}`,
       {
         params: {
           local: _.get(data, 'local'),
@@ -69,7 +67,6 @@ class PostApiService {
   }
 
   updatePost({ data, token, paramId }) {
-    console.log(data);
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -78,13 +75,22 @@ class PostApiService {
     return axiosServices.put(`${this.baseApi}posts/${paramId}`, data, config);
   }
 
+  publishPost({ paramId, token }) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return axiosServices.patch(`${this.baseApi}posts/${paramId}/publish`, null, config);
+  }
+
   deletePost({ data, token }) {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.delete(`${this.baseApi}socials/${data}`, config);
+    return axiosServices.delete(`${this.baseApi}posts/${data}`, config);
   }
 }
 export default new PostApiService();

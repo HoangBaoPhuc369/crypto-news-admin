@@ -84,30 +84,19 @@ export default function PostEdit() {
   });
 
   const yupValid = yup.object().shape({
-    body: yup.array().of(
-      yup.object().shape({
-        title: yup.string().required('Post title is a required field').typeError('Post title is a required field'),
-        subTitle: yup
-          .string()
-          .required('Post subtitle is a required field')
-          .typeError('Post subtitle is a required field'),
-        body: yup.string().required('Content is a required field').typeError('Content is a required field'),
-      })
-    ),
+    title: yup.string().required('Post title is a required field').typeError('Post title is a required field'),
+    subTitle: yup.string().required('Post subtitle is a required field').typeError('Post subtitle is a required field'),
+    body: yup.string().required('Content is a required field').typeError('Content is a required field'),
     imageUrl: yup.string().required('Please choose a image'),
     tags: yup.array().min(1, 'Please type at least one tag').typeError('Tags is a required field'),
     categoryId: yup.string().required('Category is a required field').typeError('Category is a required field'),
   });
 
   const defaultValues = {
-    body: [
-      {
-        local,
-        title: '',
-        subTitle: '',
-        body: '',
-      },
-    ],
+    local,
+    title: '',
+    subTitle: '',
+    body: '',
     tags: [],
     categoryId: '',
     imageUrl: '',
@@ -143,9 +132,9 @@ export default function PostEdit() {
         // console.log(data);
         const initData = _.get(data, 'data');
 
-        setValue('body[0].title', _.get(initData, 'title', ''));
-        setValue('body[0].subTitle', _.get(initData, 'subTitle', ''));
-        setValue('body[0].body', _.get(initData, 'body', ''));
+        setValue('title', _.get(initData, 'title', ''));
+        setValue('subTitle', _.get(initData, 'subTitle', ''));
+        setValue('body', _.get(initData, 'body', ''));
         setValue('tags', _.get(initData, 'tags', []));
         setValue('categoryId', _.get(initData, 'categoryId', ''));
         setValue('imageUrl', _.get(initData, 'imageUrl', ''));
@@ -208,7 +197,7 @@ export default function PostEdit() {
     },
   });
 
-  const handleCreatePost = async (data) => {
+  const handleUpdatePost = async (data) => {
     if (Boolean(_.get(data, 'isEditing'))) {
       const formData = new FormData();
       formData.append('uploaded_file', hookForm.watch('imgFile'));
@@ -223,9 +212,7 @@ export default function PostEdit() {
         )
       );
 
-      const finalObj = _.set(setImage, 'status', Boolean(_.get(data, 'status')) ? 99 : 1);
-
-      mUpdatePost.mutate({ data: finalObj, token: _.get(user, 'token', ''), paramId: id });
+      mUpdatePost.mutate({ data: setImage, token: _.get(user, 'token', ''), paramId: id });
     } else {
       const oldData = _.omit(data, ['categoryIdHideObj', 'imgFile', 'isEditing']);
       mUpdatePost.mutate({ data: oldData, token: _.get(user, 'token', ''), paramId: id });
@@ -273,14 +260,14 @@ export default function PostEdit() {
                       <Typography variant="subtitle2">Details</Typography>
                     </Grid>
                     <Grid item xs={12}>
-                      <TextFiedCustom hookForm={hookForm} label={'Post title'} name="body[0].title" />
+                      <TextFiedCustom hookForm={hookForm} label={'Post title'} name="title" />
                     </Grid>
 
                     <Grid item xs={12}>
                       <TextFiedCustom
                         hookForm={hookForm}
                         label={'Post subtitle'}
-                        name="body[0].subTitle"
+                        name="subTitle"
                         multiline
                         rows={4}
                         variant="outlined"
@@ -295,15 +282,15 @@ export default function PostEdit() {
 
                       <Box>
                         <Editor
-                          hanldeEditor={(data) => hookForm.setValue('body[0].body', data, { shouldValidate: true })}
+                          hanldeEditor={(data) => hookForm.setValue('body', data, { shouldValidate: true })}
                           initialData={_.get(qgetPost, 'data.data.body', '')}
                         />
-                        {Boolean(_.get(errors, 'body[0].body.message')) ? (
+                        {Boolean(_.get(errors, 'body.message')) ? (
                           <Typography
                             variant="caption"
                             sx={{ color: '#FF4842', fontSize: '12px', fontWeight: '400', margin: '0 0 0 14px' }}
                           >
-                            {_.get(errors, 'body[0].body.message')}
+                            {_.get(errors, 'body.message')}
                           </Typography>
                         ) : null}
                       </Box>
@@ -401,7 +388,7 @@ export default function PostEdit() {
                 loading={Boolean(_.get(mUpdatePost, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))}
                 variant="contained"
                 color="primary"
-                onClick={() => hookForm.handleSubmit(handleCreatePost)()}
+                onClick={() => hookForm.handleSubmit(handleUpdatePost)()}
               >
                 Update Post
               </LoadingButton>

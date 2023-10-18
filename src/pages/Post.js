@@ -35,6 +35,9 @@ import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/
 import TextFiedCustom from '../components/form/TextFiedCustom';
 import SelectField from '../components/form/SelectField';
 import { ReactComponent as SearchIconV2 } from '../svg/SearchIconV2.svg';
+import PostEdit from './PostEdit';
+import toastService from '../services/core/toast.service';
+import PostDetailDialog, { baseViewPostDetailDialogRef } from '../components/dialog/PostDetailDialog';
 
 export default function Post() {
   const [open, setOpen] = useState(null);
@@ -79,12 +82,11 @@ export default function Post() {
       }),
     {
       onSuccess: (data) => {
-        console.log(data);
         setValue('rows', _.get(data, 'data.data', []));
       },
       onError: (err) => {},
       keepPreviousData: true,
-      refetchOnWindowFocus: false,
+      // refetchOnWindowFocus: false,
     }
   );
 
@@ -94,10 +96,26 @@ export default function Post() {
     },
     onSuccess: (data) => {
       // console.log(data);
+      toastService.toast('success', 'Success', 'Delete Post Success!');
       handleCloseMenu();
       qgetListPost.refetch();
     },
   });
+
+  const mPublishPost = useMutation(
+    (data) => PostApiService.publishPost({ paramId: data, token: _.get(user, 'token', '') }),
+    {
+      onError: (err) => {
+        toastService.toast('error', 'Error', 'Publish Post Failed!');
+      },
+      onSuccess: (data) => {
+        // console.log(data);
+        toastService.toast('success', 'Success', 'Publish Post Success!');
+        handleCloseMenu();
+        qgetListPost.refetch();
+      },
+    }
+  );
 
   const columns = [
     {
@@ -294,17 +312,34 @@ export default function Post() {
       >
         <MenuItem
           sx={{ color: 'info.main' }}
-          // onClick={() => navigate(`/post/edit/${_.get(row, '_id', '')}/${_.get(row, 'local', '')}`)}
+          onClick={() => {
+            baseViewPostDetailDialogRef?.current.open({
+              id: _.get(row, '_id', ''),
+              local: _.get(row, 'local', ''),
+            });
+            handleCloseMenu();
+          }}
         >
           <Iconify icon={'eva:eye-outline'} sx={{ mr: 2 }} />
           View
         </MenuItem>
 
+        {_.get(row, 'status') === 1 ? (
+          <MenuItem
+            sx={{ color: 'success.main' }}
+            onClick={() => {
+              mPublishPost.mutate(_.get(row, '_id', ''));
+              handleCloseMenu();
+            }}
+          >
+            <Iconify icon={'eva:globe-outline'} sx={{ mr: 2 }} />
+            Publish
+          </MenuItem>
+        ) : null}
+
         <MenuItem
           onClick={() => {
             handleCloseMenu();
-            console.log(row);
-            console.log(`/post/edit/${_.get(row, '_id', '')}/${_.get(row, 'local', '')}`);
             navigate(`/dashboard/post/edit/${_.get(row, '_id', '')}/local/${_.get(row, 'local', '')}`);
           }}
         >
@@ -312,13 +347,21 @@ export default function Post() {
           Edit
         </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }} onClick={() => mDeletePost.mutate(_.get(row, '_id', ''))}>
+        <MenuItem
+          sx={{ color: 'error.main' }}
+          onClick={() => {
+            mDeletePost.mutate(_.get(row, '_id', ''));
+            handleCloseMenu();
+          }}
+        >
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Delete
         </MenuItem>
       </Popover>
 
       <CategoryDialog />
+
+      <PostDetailDialog />
     </>
   );
 }
