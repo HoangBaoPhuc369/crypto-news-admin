@@ -73,7 +73,7 @@ const PostDetail = ({ data, close }) => {
           </Grid>
 
           <Grid item xs={12} sx={{ margin: '25px 16px 40px 16px' }}>
-            <div className="ql-editor">{parse(_.get(data, 'body', ''))}</div>
+            <div className="ql-editor ql-css-img">{parse(_.get(data, 'body', ''))}</div>
           </Grid>
         </Grid>
       </Grid>

@@ -1,3 +1,9 @@
 .swal2-container {
   z-index: 9999 !important;
 }
+
+.ql-css-img img {
+  border-radius: 12px;
+  width: calc(100% - 120px);
+  height: 350px;
+}

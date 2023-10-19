@@ -3,7 +3,7 @@ import _ from 'lodash';
 import axiosServices from '../../components/utils/axios';
 
 class PostApiService {
-  baseApi = 'https://cryptonew-v8jk.onrender.com/';
+  baseApi = process.env.REACT_APP_API_URL;
 
   getListPost({ data, token }) {
     const config = {

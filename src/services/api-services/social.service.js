@@ -3,7 +3,7 @@ import _ from 'lodash';
 import axiosServices from '../../components/utils/axios';
 
 class SocialApiService {
-  baseApi = 'https://cryptonew-v8jk.onrender.com/';
+  baseApi = process.env.REACT_APP_API_URL;
 
   getListSocial({ data, token }) {
     const config = {
@@ -11,19 +11,16 @@ class SocialApiService {
         Authorization: `Bearer ${token}`,
       },
     };
-
-    /*
-    
-    
-      ,
+    return axiosServices.get(
+      `${this.baseApi}socials`,
       {
         params: {
           page: _.get(data, 'index'),
           page_size: _.get(data, 'size'),
         },
-      }
-    */
-    return axiosServices.get(`${this.baseApi}socials`, config);
+      },
+      config
+    );
   }
 
   createSocial({ data, token }) {

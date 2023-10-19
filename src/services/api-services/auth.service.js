@@ -3,7 +3,7 @@ import _ from 'lodash';
 import axiosServices from '../../components/utils/axios';
 
 class AuthApiService {
-  baseApi = 'https://cryptonew-v8jk.onrender.com/';
+  baseApi = process.env.REACT_APP_API_URL;
 
   loginAdmin(data) {
     return axiosServices.post(`${this.baseApi}auth/login`, data);

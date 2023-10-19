@@ -21,6 +21,7 @@ import CategoryNew from './pages/CategoryNew';
 import Social from './pages/Social';
 import SocialNew from './pages/SocialNew';
 import PostEdit from './pages/PostEdit';
+import Banner from './pages/Banner';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,8 @@ export default function Router() {
         { path: 'category', element: <Category /> },
         { path: 'category/new', element: <CategoryNew /> },
         { path: 'social', element: <Social /> },
+        { path: 'social/new', element: <SocialNew /> },
+        { path: 'banner', element: <Banner /> },
         { path: 'social/new', element: <SocialNew /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },

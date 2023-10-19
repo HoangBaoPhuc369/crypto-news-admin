@@ -3,7 +3,7 @@ import _ from 'lodash';
 import axiosServices from '../../components/utils/axios';
 
 class CategoryApiService {
-  baseApi = 'https://cryptonew-v8jk.onrender.com/';
+  baseApi = process.env.REACT_APP_API_URL;
 
   getListCategory({ data, token }) {
     const config = {
