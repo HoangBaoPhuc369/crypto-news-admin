@@ -46,6 +46,7 @@ export default function Category() {
       }),
     {
       onSuccess: (data) => {
+        console.log(_.get(data, 'data.data', []));
         setValue('rows', _.get(data, 'data.data', []));
       },
       onError: (err) => {},

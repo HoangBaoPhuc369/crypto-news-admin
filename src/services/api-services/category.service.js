@@ -42,6 +42,7 @@ class CategoryApiService {
   }
 
   createCategory({ data, token }) {
+    console.log(data);
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable import/order */
 import { Helmet } from 'react-helmet-async';
@@ -25,7 +26,7 @@ import {
 import { useForm } from 'react-hook-form';
 import TextFiedCustom from '../components/form/TextFiedCustom';
 import SelectField from '../components/form/SelectField';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import CategoryApiService from '../services/api-services/category.service';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -55,6 +56,17 @@ export default function CategoryNew() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
+  const qgetListCategory = useQuery(
+    ['qgetListCategory'],
+    () => CategoryApiService.getAllListCategory(_.get(user, 'token')),
+    {
+      onSuccess: (data) => {
+        // console.log(data);
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
+
   const yupValid = yup.object().shape({
     imageUrl: yup.string().required('Please choose a image'),
     name: yup.string().required('Name is a required field'),
@@ -63,6 +75,7 @@ export default function CategoryNew() {
   const hookForm = useForm({
     defaultValues: {
       name: '',
+      parent: '',
       imageUrl: '',
       imgFile: null,
     },
@@ -108,7 +121,10 @@ export default function CategoryNew() {
         'https://res.cloudinary.com/crypto-new-cloud/image/upload/v1697279024/post/0f8b3c4e0b70d524c8841134b6796c27.png.png'
       )
     );
-    mCreateCategory.mutate({ data: setImage, token: _.get(user, 'token', '') });
+
+    const result = _.pickBy(setImage, _.identity);
+
+    mCreateCategory.mutate({ data: result, token: _.get(user, 'token', '') });
   };
 
   const [isConverting, setIsConverting] = useState(false);
@@ -159,8 +175,21 @@ export default function CategoryNew() {
 
         <Paper elevation={3} sx={{ display: 'flex', gap: '20px', padding: '20px', marginBottom: '20px' }}>
           <Grid container spacing={3}>
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <TextFiedCustom hookForm={hookForm} name="name" label={'Name'} />
+            </Grid>
+            <Grid item xs={6}>
+              <SelectField
+                hookForm={hookForm}
+                label="Parent"
+                name="parent"
+                options={_.map(_.get(qgetListCategory, 'data.data.data', []), (item) => {
+                  return {
+                    id: _.get(item, '_id', ''),
+                    name: _.get(item, 'name', ''),
+                  };
+                })}
+              />
             </Grid>
             <Grid item xs={12}>
               <Grid item>

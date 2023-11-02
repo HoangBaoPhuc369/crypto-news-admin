@@ -161,7 +161,7 @@ export default function CategoryUpdate({ data, close, refetch, paramId }) {
 
       <Container>
         <Grid container spacing={3} sx={{ mb: '20px' }}>
-          <Grid item xs={4}>
+          <Grid item xs={4} mt={2}>
             <TextFiedCustom hookForm={hookForm} name="name" label={'Name'} />
           </Grid>
           <Grid item xs={12}>
