@@ -17,6 +17,7 @@ class CategoryApiService {
         params: {
           page: _.get(data, 'index'),
           page_size: _.get(data, 'size'),
+          local: _.get(data, 'local'),
         },
       },
       config
@@ -29,7 +30,24 @@ class CategoryApiService {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.get(`${this.baseApi}categories`, config);
+    return axiosServices.get(
+      `${this.baseApi}categories`,
+      {
+        params: {
+          local: 'en',
+        },
+      },
+      config
+    );
+  }
+
+  getAllListCategoryJP(token) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return axiosServices.get(`${this.baseApi}categories?local=jp`, config);
   }
 
   getAllListTags(token) {
@@ -57,7 +75,15 @@ class CategoryApiService {
         Authorization: `Bearer ${token}`,
       },
     };
-    return axiosServices.get(`${this.baseApi}categories/${data}`, config);
+    return axiosServices.get(
+      `${this.baseApi}categories/${data}`,
+      {
+        params: {
+          include: 'languages',
+        },
+      },
+      config
+    );
   }
 
   updateCategory({ data, token, paramId }) {

@@ -12,6 +12,4 @@ const store = configureStore({
     }),
 });
 
-const persister = persistStore(store);
-
-export { store, persister };
+export { store };

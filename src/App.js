@@ -9,7 +9,7 @@ import ThemeProvider from './theme';
 import { StyledChart } from './components/chart';
 import ScrollToTop from './components/scroll-to-top';
 import { Provider } from 'react-redux';
-import { store, persister } from './store';
+import { store } from './store';
 import { ToastContainer } from 'react-toastify';
 import './style.css';
 
@@ -17,7 +17,7 @@ import './style.css';
 
 export default function App() {
   return (
-    <Provider store={store} persister={persister}>
+    <Provider store={store}>
       <HelmetProvider>
         <BrowserRouter>
           <ThemeProvider>

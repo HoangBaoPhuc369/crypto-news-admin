@@ -38,6 +38,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ImageApiService from '../../services/api-services/images.service';
 import { useState } from 'react';
+import SwitchField from '../form/SwitchField';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -53,16 +54,32 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function CategoryUpdate({ data, close, refetch, paramId }) {
   const { user } = useSelector((state) => state.auth);
-
+  console.log(data);
   const yupValid = yup.object().shape({
     imageUrl: yup.string().required('Please choose a image'),
-    name: yup.string().required('Name is a required field'),
+    languages: yup.array().of(
+      yup.object().shape({
+        name: yup.string().required('Please type a name'),
+        local: yup.string().required('Please type a name'),
+      })
+    ),
   });
 
   const hookForm = useForm({
     defaultValues: {
-      name: _.get(data, 'name', ''),
+      languages: [
+        {
+          name: _.get(data, 'languages[0].name', ''),
+          local: 'en',
+        },
+        {
+          name: _.get(data, 'languages[1].name', ''),
+          local: 'jp',
+        },
+      ],
       imageUrl: _.get(data, 'imageUrl', ''),
+      isNavHeader: Boolean(_.get(data, 'isNavHeader', '')),
+      parent: '',
       imgFile: null,
       isEditing: false,
     },
@@ -161,8 +178,66 @@ export default function CategoryUpdate({ data, close, refetch, paramId }) {
 
       <Container>
         <Grid container spacing={3} sx={{ mb: '20px' }}>
-          <Grid item xs={4} mt={2}>
-            <TextFiedCustom hookForm={hookForm} name="name" label={'Name'} />
+          <Grid container spacing={2} mt={5}>
+            <Grid item xs={6}>
+              <Grid item xs={12} mb={2}>
+                <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+                  English
+                </Typography>
+              </Grid>
+              <Paper elevation={3} sx={{ display: 'flex', gap: '20px', padding: '20px', marginBottom: '20px' }}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <TextFiedCustom hookForm={hookForm} name="languages[0].name" label={'Name'} />
+                  </Grid>
+                  {/* <Grid item xs={6}>
+                  <SelectField
+                    hookForm={hookForm}
+                    label="Parent"
+                    name="parent"
+                    options={_.map(_.get(qgetListCategory, 'data.data.data', []), (item) => {
+                      return {
+                        id: _.get(item, '_id', ''),
+                        name: _.get(item, 'name', ''),
+                      };
+                    })}
+                  />
+                </Grid> */}
+                </Grid>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Grid item xs={12} mb={2}>
+                <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+                  Japan
+                </Typography>
+              </Grid>
+              <Paper elevation={3} sx={{ display: 'flex', gap: '20px', padding: '20px', marginBottom: '20px' }}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <TextFiedCustom hookForm={hookForm} name="languages[1].name" label={'Name'} />
+                  </Grid>
+                  {/* <Grid item xs={6}>
+                <SelectField
+                  hookForm={hookForm}
+                  label="Parent"
+                  name="parent"
+                  options={_.map(_.get(qgetListCategoryJP, 'data.data.data', []), (item) => {
+                    return {
+                      id: _.get(item, '_id', ''),
+                      name: _.get(item, 'name', ''),
+                    };
+                  })}
+                />
+              </Grid> */}
+                </Grid>
+              </Paper>
+            </Grid>
+          </Grid>
+
+          <Grid item xs={6} mb={2}>
+            <SwitchField hookForm={hookForm} label="isNavHeader" name="isNavHeader" />
           </Grid>
           <Grid item xs={12}>
             <Grid item>

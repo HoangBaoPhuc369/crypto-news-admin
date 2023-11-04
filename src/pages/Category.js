@@ -5,7 +5,18 @@ import _, { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 // @mui
-import { Card, Stack, Button, Popover, MenuItem, Container, Typography, IconButton, Box } from '@mui/material';
+import {
+  Card,
+  Stack,
+  Button,
+  Popover,
+  MenuItem,
+  Container,
+  Typography,
+  IconButton,
+  Box,
+  InputAdornment,
+} from '@mui/material';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -19,28 +30,44 @@ import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import CategoryDialog, { baseViewCategoryDialogRef } from '../components/dialog/CategoryDialog';
 import toastService from '../services/core/toast.service';
+import SelectField from '../components/form/SelectField';
+import TextFiedCustom from '../components/form/TextFiedCustom';
 
 export default function Category() {
   const [open, setOpen] = useState(null);
   const [row, setRow] = useState(null);
+
+  const languageOpt = [
+    {
+      id: 'en',
+      name: 'English',
+    },
+    {
+      id: 'jp',
+      name: 'Japan',
+    },
+  ];
+
   const { user } = useSelector((state) => state.auth);
   const hookForm = useForm({
     defaultValues: {
       rows: [],
       index: 1,
       size: 5,
+      local: 'en',
     },
   });
 
   const { watch, setValue } = hookForm;
 
   const qgetListCategory = useQuery(
-    ['qgetListCategory', watch('index'), watch('size'), watch('rows')],
+    ['qgetListCategory', watch('index'), watch('size'), watch('rows'), watch('local')],
     () =>
       CategoryApiService.getListCategory({
         data: {
           index: watch('index'),
           size: watch('size'),
+          local: watch('local'),
         },
         token: _.get(user, 'token'),
       }),
@@ -94,6 +121,18 @@ export default function Category() {
           />
         </Box>
       ),
+    },
+    {
+      id: 'isNavHeader',
+      label: 'isNavHeader',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => {
+        const label = Boolean(_.get(params, 'isNavHeader')) ? 'true' : 'false';
+        return (
+          <Label color={(!Boolean(_.get(params, 'isNavHeader')) && 'error') || 'success'}>{sentenceCase(label)}</Label>
+        );
+      },
     },
     {
       id: 'action',
@@ -152,6 +191,12 @@ export default function Category() {
           >
             New Category
           </Button>
+        </Stack>
+
+        <Stack direction="row" alignItems="center" justifyContent="flex-start" gap={2} mb={2}>
+          <Box sx={{ width: '250px' }}>
+            <SelectField name="local" label="Language" hookForm={hookForm} options={languageOpt} />
+          </Box>
         </Stack>
 
         <Card>

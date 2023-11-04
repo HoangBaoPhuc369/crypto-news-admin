@@ -7,15 +7,7 @@ import expireReducer from 'redux-persist-expire';
 // ==============================|| COMBINE REDUCER ||============================== //
 
 const reducer = combineReducers({
-  auth: persistReducer(
-    {
-      key: 'user',
-      storage,
-      keyPrefix: 'admin-',
-      transforms: [expireReducer('user', { expireSeconds: 7 * 24 * 60 * 60 })],
-    },
-    AuthReducer
-  ),
+  auth: AuthReducer,
 });
 
 export default reducer;

@@ -4,8 +4,10 @@ import axiosServices from '../../components/utils/axios';
 
 class ImageApiService {
   baseApi = process.env.REACT_APP_API_URL;
-  
+
   uploadImage(data) {
+    console.log(data);
+
     const config = {
       headers: {
         Authorization: `Bearer ${_.get(data, 'token', '')}`,

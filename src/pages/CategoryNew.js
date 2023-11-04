@@ -39,6 +39,7 @@ import toastService from '../services/core/toast.service';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ImageApiService from '../services/api-services/images.service';
+import SwitchField from '../components/form/SwitchField';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -67,15 +68,41 @@ export default function CategoryNew() {
     }
   );
 
+  const qgetListCategoryJP = useQuery(
+    ['qgetListCategoryJP'],
+    () => CategoryApiService.getAllListCategoryJP(_.get(user, 'token')),
+    {
+      onSuccess: (data) => {
+        // console.log(data);
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
+
   const yupValid = yup.object().shape({
     imageUrl: yup.string().required('Please choose a image'),
-    name: yup.string().required('Name is a required field'),
+    languages: yup.array().of(
+      yup.object().shape({
+        name: yup.string().required('Please type a name'),
+        local: yup.string().required('Please type a name'),
+      })
+    ),
   });
 
   const hookForm = useForm({
     defaultValues: {
-      name: '',
+      languages: [
+        {
+          name: '',
+          local: 'en',
+        },
+        {
+          name: '',
+          local: 'jp',
+        },
+      ],
       parent: '',
+      isNavHeader: false,
       imageUrl: '',
       imgFile: null,
     },
@@ -99,11 +126,13 @@ export default function CategoryNew() {
 
   const mUploadImage = useMutation((data) => ImageApiService.uploadImage(data), {
     onError: (err) => {
+      console.log(err);
       toastService.toast('error', 'Error', 'Upload Image Failed!');
     },
   });
 
   const handleCreateCategory = async (data) => {
+    console.log(data);
     const formData = new FormData();
     formData.append('uploaded_file', hookForm.watch('imgFile'));
     const uploadedImage = await mUploadImage.mutateAsync({
@@ -123,6 +152,8 @@ export default function CategoryNew() {
     );
 
     const result = _.pickBy(setImage, _.identity);
+
+    console.log(result);
 
     mCreateCategory.mutate({ data: result, token: _.get(user, 'token', '') });
   };
@@ -173,61 +204,105 @@ export default function CategoryNew() {
           </Typography>
         </Stack>
 
-        <Paper elevation={3} sx={{ display: 'flex', gap: '20px', padding: '20px', marginBottom: '20px' }}>
-          <Grid container spacing={3}>
-            <Grid item xs={6}>
-              <TextFiedCustom hookForm={hookForm} name="name" label={'Name'} />
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Grid item xs={12} mb={2}>
+              <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+                English
+              </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <SelectField
-                hookForm={hookForm}
-                label="Parent"
-                name="parent"
-                options={_.map(_.get(qgetListCategory, 'data.data.data', []), (item) => {
-                  return {
-                    id: _.get(item, '_id', ''),
-                    name: _.get(item, 'name', ''),
-                  };
-                })}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Grid item>
-                <LoadingButton
-                  loading={isConverting}
-                  component="label"
-                  variant="contained"
-                  startIcon={<CloudUploadIcon />}
-                >
-                  Upload file
-                  <VisuallyHiddenInput type="file" accept="image/*" onChange={handleImages} />
-                </LoadingButton>
+            <Paper
+              elevation={3}
+              sx={{ display: 'flex', gap: '20px', padding: '20px', marginBottom: '20px', width: '500px' }}
+            >
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <TextFiedCustom hookForm={hookForm} name="languages[0].name" label={'Name'} />
+                </Grid>
+                {/* <Grid item xs={6}>
+                  <SelectField
+                    hookForm={hookForm}
+                    label="Parent"
+                    name="parent"
+                    options={_.map(_.get(qgetListCategory, 'data.data.data', []), (item) => {
+                      return {
+                        id: _.get(item, '_id', ''),
+                        name: _.get(item, 'name', ''),
+                      };
+                    })}
+                  />
+                </Grid> */}
               </Grid>
-              {Boolean(_.get(errors, 'imageUrl.message')) ? (
-                <Typography
-                  variant="caption"
-                  sx={{ color: '#FF4842', fontSize: '12px', fontWeight: '400', margin: '0 0 0 14px' }}
-                >
-                  {_.get(errors, 'imageUrl.message')}
-                </Typography>
-              ) : null}
-
-              {Boolean(hookForm.watch('imageUrl')) ? (
-                <img
-                  alt=""
-                  src={hookForm.watch('imageUrl')}
-                  style={{
-                    width: '250px',
-                    height: '150px',
-                    objectFit: 'cover',
-                    borderRadius: '12px',
-                    marginTop: '20px',
-                  }}
-                />
-              ) : null}
-            </Grid>
+            </Paper>
           </Grid>
-        </Paper>
+
+          <Grid item xs={6}>
+            <Grid item xs={12} mb={2}>
+              <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+                Japan
+              </Typography>
+            </Grid>
+            <Paper
+              elevation={3}
+              sx={{ display: 'flex', gap: '20px', padding: '20px', marginBottom: '20px', width: '500px' }}
+            >
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <TextFiedCustom hookForm={hookForm} name="languages[1].name" label={'Name'} />
+                </Grid>
+                {/* <Grid item xs={6}>
+                <SelectField
+                  hookForm={hookForm}
+                  label="Parent"
+                  name="parent"
+                  options={_.map(_.get(qgetListCategoryJP, 'data.data.data', []), (item) => {
+                    return {
+                      id: _.get(item, '_id', ''),
+                      name: _.get(item, 'name', ''),
+                    };
+                  })}
+                />
+              </Grid> */}
+              </Grid>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        <Grid item xs={6} mb={2}>
+          <SwitchField hookForm={hookForm} label="isNavHeader" name="isNavHeader" />
+        </Grid>
+
+        <Grid item xs={12} mb={5}>
+          <Grid item>
+            <LoadingButton loading={isConverting} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+              Upload file
+              <VisuallyHiddenInput type="file" accept="image/*" onChange={handleImages} />
+            </LoadingButton>
+          </Grid>
+          {Boolean(_.get(errors, 'imageUrl.message')) ? (
+            <Typography
+              variant="caption"
+              sx={{ color: '#FF4842', fontSize: '12px', fontWeight: '400', margin: '0 0 0 14px' }}
+            >
+              {_.get(errors, 'imageUrl.message')}
+            </Typography>
+          ) : null}
+
+          {Boolean(hookForm.watch('imageUrl')) ? (
+            <img
+              alt=""
+              src={hookForm.watch('imageUrl')}
+              style={{
+                width: '250px',
+                height: '150px',
+                objectFit: 'cover',
+                borderRadius: '12px',
+                marginTop: '20px',
+              }}
+            />
+          ) : null}
+        </Grid>
+
         <LoadingButton
           loading={Boolean(_.get(mCreateCategory, 'isLoading')) || Boolean(_.get(mUploadImage, 'isLoading'))}
           variant="contained"
