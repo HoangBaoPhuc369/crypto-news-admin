@@ -151,11 +151,11 @@ export default function CategoryNew() {
       )
     );
 
-    const result = _.pickBy(setImage, _.identity);
+    // const result = _.pickBy(setImage, _.identity);
 
-    console.log(result);
+    // console.log(result);
 
-    mCreateCategory.mutate({ data: result, token: _.get(user, 'token', '') });
+    mCreateCategory.mutate({ data: setImage, token: _.get(user, 'token', '') });
   };
 
   const [isConverting, setIsConverting] = useState(false);
