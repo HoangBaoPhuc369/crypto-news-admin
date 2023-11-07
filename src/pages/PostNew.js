@@ -118,6 +118,7 @@ export default function PostNew() {
     imgFile: null,
     hidden: false,
     status: false,
+    isSpotlight: false,
   };
 
   const hookForm = useForm({
@@ -402,6 +403,7 @@ export default function PostNew() {
 
                 <Grid item xs={6}>
                   <SwitchField hookForm={hookForm} label="Publish" name="status" />
+                  <SwitchField hookForm={hookForm} label="Spotlight" name="isSpotlight" />
                 </Grid>
               </Grid>
             </Paper>

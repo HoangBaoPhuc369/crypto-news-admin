@@ -102,6 +102,7 @@ export default function PostEdit() {
     imageUrl: '',
     imgFile: null,
     isEditing: false,
+    isSpotlight: false,
     // hidden: false,
     // status: false,
   };
@@ -138,6 +139,7 @@ export default function PostEdit() {
         setValue('tags', _.get(initData, 'tags', []));
         setValue('categoryId', _.get(initData, 'categoryId', ''));
         setValue('imageUrl', _.get(initData, 'imageUrl', ''));
+        setValue('isSpotlight', _.get(initData, 'isSpotlight', false));
       },
       refetchOnWindowFocus: false,
       enabled: Boolean(id),
@@ -376,9 +378,9 @@ export default function PostEdit() {
                       />
                     </Grid>
 
-                    {/* <Grid item xs={6}>
-                      <SwitchField hookForm={hookForm} label="Publish" name="status" />
-                    </Grid> */}
+                    <Grid item xs={6}>
+                      <SwitchField hookForm={hookForm} label="Spotlight" name="isSpotlight" />
+                    </Grid>
                   </Grid>
                 </Paper>
               </Grid>

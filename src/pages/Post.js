@@ -187,6 +187,18 @@ export default function Post() {
       },
     },
     {
+      id: 'isSpotlight',
+      label: 'Spotlight',
+      width: 200,
+      headerCellSX: { bgcolor: '#EAEEF2' },
+      renderCell: (params) => {
+        const label = Boolean(_.get(params, 'isSpotlight')) ? 'true' : 'false';
+        return (
+          <Label color={(Boolean(_.get(params, 'isSpotlight')) && 'success') || 'error'}>{sentenceCase(label)}</Label>
+        );
+      },
+    },
+    {
       id: 'local',
       label: 'Language',
       width: 200,
