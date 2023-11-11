@@ -72,6 +72,24 @@ const PostDetail = ({ data, close }) => {
             </Box>
           </Grid>
 
+          <Grid item xs={12} sx={{ margin: '15px 12px 0 12px' }}>
+            <Typography
+              component={'h2'}
+              sx={{
+                display: 'flex',
+                padding: '10px 25px',
+                justifyContent: 'center',
+                fontSize: '24px',
+                fontWeight: '600',
+                color: '#444a4d',
+                wordBreak: 'break-word',
+                wordWrap: 'nowrap',
+              }}
+            >
+              {_.get(data, 'subTitle')}
+            </Typography>
+          </Grid>
+
           <Grid item xs={12} sx={{ margin: '25px 16px 40px 16px' }}>
             <div className="ql-editor ql-css-img">{parse(_.get(data, 'body', ''))}</div>
           </Grid>
