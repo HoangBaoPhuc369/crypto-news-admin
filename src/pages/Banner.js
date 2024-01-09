@@ -31,7 +31,7 @@ export default function Banner() {
     defaultValues: {
       rows: [],
       index: 1,
-      size: 5,
+      size: 7,
     },
   });
 
@@ -85,31 +85,10 @@ export default function Banner() {
               height: '60px',
             };
             break;
-
-          case 'MEDIUM_DETAIL_BANNER_1':
-            sizeImg = {
-              width: '150px',
-              height: '80px',
-            };
-            break;
-
-          case 'MEDIUM_DETAIL_BANNER_2':
-            sizeImg = {
-              width: '150px',
-              height: '80px',
-            };
-            break;
-          case 'MEDIUM_DETAIL_BANNER_3':
-            sizeImg = {
-              width: '150px',
-              height: '80px',
-            };
-            break;
-
           default:
             sizeImg = {
-              width: '100px',
-              heigth: '60px',
+              width: '150px',
+              height: '80px',
             };
             break;
         }
@@ -192,7 +171,7 @@ export default function Banner() {
           <TableDynamic
             columns={columns}
             rows={watch('rows') || []}
-            totalRow={_.get(qgetListBanner, 'data.data.total', 5)}
+            totalRow={_.get(qgetListBanner, 'data.total', 7)}
             loading={Boolean(_.get(qgetListBanner, 'isLoading'))}
             rowsPerPage={watch('size')}
             skipCount={(watch('index') - 1) * watch('size') || 0}
